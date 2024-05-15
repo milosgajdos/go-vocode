@@ -1,3 +1,3 @@
-module github.com/milosgajdos/go-repo-template
+module github.com/milosgajdos/go-vocode
 
 go 1.21

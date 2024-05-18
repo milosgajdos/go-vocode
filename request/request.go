@@ -57,14 +57,20 @@ func Do[T error](client *client.HTTP, req *http.Request) (*http.Response, error)
 	}
 	defer resp.Body.Close()
 
+	buf := &bytes.Buffer{}
+	body := io.TeeReader(resp.Body, buf)
+
 	var apiErr T
-	if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-		// NOTE: return the original error
-		return nil, err
+	if jsonErr := json.NewDecoder(body).Decode(&apiErr); jsonErr != nil {
+		resp.Body = io.NopCloser(buf)
+		return resp, err
 	}
 
 	return nil, apiErr
 }
+
+// PageParams contain key-value pairs with request paging parameters
+type PageParams map[string]string
 
 // HTTPOption is a HTTP request functional option.
 type HTTPOption func(*http.Request)
@@ -96,5 +102,16 @@ func WithBearer(token string) HTTPOption {
 			req.Header = make(http.Header)
 		}
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	}
+}
+
+// WithPageParams encodes paging params
+func WithPageParams(params PageParams) HTTPOption {
+	return func(req *http.Request) {
+		q := req.URL.Query()
+		for k, v := range params {
+			q.Add(k, v)
+		}
+		req.URL.RawQuery = q.Encode()
 	}
 }

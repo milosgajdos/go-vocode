@@ -40,8 +40,8 @@ type PhraseTrigger struct {
 }
 
 type FnCallTrigger struct {
-	Type   TriggerType `json:"type"`
-	Config map[any]any `json:"config"`
+	Type   TriggerType    `json:"type"`
+	Config map[string]any `json:"config"`
 }
 
 type ActionType string
@@ -66,12 +66,12 @@ type TransferCallAction struct {
 
 type EndConversationAction struct {
 	ActionBase
-	Config map[any]any `json:"config"`
+	Config map[string]any `json:"config"`
 }
 
 type DTMFAction struct {
 	ActionBase
-	Config map[any]any `json:"config"`
+	Config map[string]any `json:"config"`
 }
 
 type AddToConfConfig struct {
@@ -86,23 +86,23 @@ type AddToConfAction struct {
 
 type SetHoldAction struct {
 	ActionBase
-	Config map[any]any `json:"config"`
+	Config map[string]any `json:"config"`
 }
 
-type ProcessingModeType string
+type ProcessingMode string
 
 const (
-	MutedProcessingType ProcessingModeType = "muted"
+	MutedProcessing ProcessingMode = "muted"
 )
 
 type ExternalActionConfig struct {
-	ProcessingMode ProcessingModeType `json:"processing_mode"`
-	Name           string             `json:"name"`
-	Description    string             `json:"description"`
-	URL            string             `json:"url"`
-	InputSchema    map[any]any        `json:"input_schema"`
-	SpeakOnSend    bool               `json:"speak_on_send"`
-	SpeakonRecv    bool               `json:"speakon_recv"`
+	ProcessingMode ProcessingMode `json:"processing_mode"`
+	Name           string         `json:"name"`
+	Description    string         `json:"description"`
+	URL            string         `json:"url"`
+	InputSchema    map[string]any `json:"input_schema"`
+	SpeakOnSend    bool           `json:"speak_on_send"`
+	SpeakonRecv    bool           `json:"speak_on_receive"`
 }
 
 type ExternalAction struct {
@@ -123,7 +123,7 @@ type Action struct {
 }
 
 type Actions struct {
-	Items []Actions `json:"items"`
+	Items []Action `json:"items"`
 	*Paging
 }
 
@@ -143,9 +143,8 @@ func (a *Action) UnmarshalJSON(data []byte) error {
 	type Alias Action
 	aux := &struct {
 		*Alias
-		RawConfig      json.RawMessage `json:"config"`
-		RawTrigger     json.RawMessage `json:"action_trigger"`
-		RawTriggerType TriggerType     `json:"action_trigger_type"`
+		RawConfig  json.RawMessage `json:"config"`
+		RawTrigger json.RawMessage `json:"action_trigger"`
 	}{
 		Alias: (*Alias)(a),
 	}
@@ -154,7 +153,16 @@ func (a *Action) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	switch aux.RawTriggerType {
+	var triggerObj struct {
+		Type   TriggerType     `json:"type"`
+		Config json.RawMessage `json:"config"`
+	}
+
+	if err := json.Unmarshal(aux.RawTrigger, &triggerObj); err != nil {
+		return err
+	}
+
+	switch triggerObj.Type {
 	case FnCallTriggerType:
 		var trigger FnCallTrigger
 		if err := json.Unmarshal(aux.RawTrigger, &trigger); err != nil {
@@ -168,7 +176,7 @@ func (a *Action) UnmarshalJSON(data []byte) error {
 		}
 		a.Trigger = &trigger
 	default:
-		return fmt.Errorf("unknown trigger type: %s", aux.RawTriggerType)
+		return fmt.Errorf("unknown trigger type: %s", triggerObj.Type)
 	}
 
 	switch a.Type {

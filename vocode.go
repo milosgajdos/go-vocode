@@ -7,13 +7,13 @@ import (
 )
 
 const (
-	// BaseURL is OpenAI HTTP API base URL.
+	// BaseURL is Vocode HTTP API base URL.
 	BaseURL = "https://api.vocode.dev"
-	// APIV2 V1 version.
+	// APIV1 V1 version.
 	APIV1 = "v1"
 )
 
-// Client is an OpenAI HTTP API client.
+// Client is an Vocode HTTP API client.
 type Client struct {
 	opts Options
 }

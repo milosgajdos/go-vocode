@@ -12,7 +12,7 @@ func main() {
 	ctx := context.Background()
 
 	extActionReq := &vocode.CreateReq{
-		Type: vocode.External,
+		Type: vocode.ExternalActionType,
 		Config: vocode.ExternalActionConfig{
 			ProcessingMode: vocode.MutedProcessing,
 			Name:           "Baseconfig",
@@ -33,7 +33,7 @@ func main() {
 	log.Printf("%#v", res)
 
 	trCallActionReq := &vocode.CreateReq{
-		Type: vocode.TransferCall,
+		Type: vocode.TransferCallActionType,
 		Config: vocode.TransferCallActionConfig{
 			PhoneNr: "+19517449404",
 		},

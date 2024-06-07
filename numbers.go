@@ -15,8 +15,8 @@ import (
 type TelProvider string
 
 const (
-	Vonage TelProvider = "vonage"
-	Twilio TelProvider = "twilio"
+	VonageTelProvider TelProvider = "vonage"
+	TwilioTelProvider TelProvider = "twilio"
 )
 
 type NumbersItem struct {

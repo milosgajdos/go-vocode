@@ -47,12 +47,12 @@ type FnCallTrigger struct {
 type ActionType string
 
 const (
-	TransferCall    ActionType = "action_transfer_call"
-	EndConversation ActionType = "action_end_conversation"
-	DTMF            ActionType = "action_dtmf"
-	AddToConference ActionType = "action_add_to_conference"
-	SetHold         ActionType = "action_set_hold"
-	External        ActionType = "action_external"
+	TransferCallActionType    ActionType = "action_transfer_call"
+	EndConversationActionType ActionType = "action_end_conversation"
+	DtmfActionType            ActionType = "action_dtmf"
+	AddToConferenceActionType ActionType = "action_add_to_conference"
+	SetHoldActionType         ActionType = "action_set_hold"
+	ExternalActionType        ActionType = "action_external"
 )
 
 type TransferCallActionConfig struct {
@@ -180,37 +180,37 @@ func (a *Action) UnmarshalJSON(data []byte) error {
 	}
 
 	switch a.Type {
-	case TransferCall:
+	case TransferCallActionType:
 		var config TransferCallActionConfig
 		if err := json.Unmarshal(aux.RawConfig, &config); err != nil {
 			return err
 		}
 		a.Config = &config
-	case EndConversation:
+	case EndConversationActionType:
 		var config map[string]interface{}
 		if err := json.Unmarshal(aux.RawConfig, &config); err != nil {
 			return err
 		}
 		a.Config = config
-	case DTMF:
+	case DtmfActionType:
 		var config map[string]interface{}
 		if err := json.Unmarshal(aux.RawConfig, &config); err != nil {
 			return err
 		}
 		a.Config = config
-	case AddToConference:
+	case AddToConferenceActionType:
 		var config AddToConfConfig
 		if err := json.Unmarshal(aux.RawConfig, &config); err != nil {
 			return err
 		}
 		a.Config = &config
-	case SetHold:
+	case SetHoldActionType:
 		var config map[string]interface{}
 		if err := json.Unmarshal(aux.RawConfig, &config); err != nil {
 			return err
 		}
 		a.Config = config
-	case External:
+	case ExternalActionType:
 		var config ExternalActionConfig
 		if err := json.Unmarshal(aux.RawConfig, &config); err != nil {
 			return err

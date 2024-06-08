@@ -127,13 +127,13 @@ type Actions struct {
 	*Paging
 }
 
-type CreateReq struct {
+type CreateActionReq struct {
 	Type    ActionType  `json:"type"`
 	Config  interface{} `json:"config"`
 	Trigger interface{} `json:"action_trigger"`
 }
 
-type UpdateReq struct {
+type UpdateActionReq struct {
 	Type    ActionType  `json:"type"`
 	Config  interface{} `json:"config"`
 	Trigger interface{} `json:"action_trigger"`
@@ -315,7 +315,7 @@ func (c *Client) GetAction(ctx context.Context, actionID string) (*Action, error
 	}
 }
 
-func (c *Client) CreateAction(ctx context.Context, createReq *CreateReq) (*Action, error) {
+func (c *Client) CreateAction(ctx context.Context, createReq *CreateActionReq) (*Action, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/actions/create")
 	if err != nil {
 		return nil, err
@@ -365,7 +365,7 @@ func (c *Client) CreateAction(ctx context.Context, createReq *CreateReq) (*Actio
 	}
 }
 
-func (c *Client) UpdateAction(ctx context.Context, actionID string, updateReq *UpdateReq) (*Action, error) {
+func (c *Client) UpdateAction(ctx context.Context, actionID string, updateReq *UpdateActionReq) (*Action, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/actions/update")
 	if err != nil {
 		return nil, err

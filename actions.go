@@ -127,16 +127,18 @@ type Actions struct {
 	*Paging
 }
 
-type CreateActionReq struct {
+type ActionReqBase struct {
 	Type    ActionType  `json:"type"`
 	Config  interface{} `json:"config"`
 	Trigger interface{} `json:"action_trigger"`
 }
 
+type CreateActionReq struct {
+	ActionReqBase
+}
+
 type UpdateActionReq struct {
-	Type    ActionType  `json:"type"`
-	Config  interface{} `json:"config"`
-	Trigger interface{} `json:"action_trigger"`
+	ActionReqBase
 }
 
 func (a *Action) UnmarshalJSON(data []byte) error {

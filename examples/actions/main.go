@@ -12,17 +12,19 @@ func main() {
 	ctx := context.Background()
 
 	extActionReq := &vocode.CreateActionReq{
-		Type: vocode.ExternalActionType,
-		Config: vocode.ExternalActionConfig{
-			ProcessingMode: vocode.MutedProcessing,
-			Name:           "Baseconfig",
-			Description:    "Some description",
-			URL:            "https://foobar.com",
-			InputSchema:    map[string]any{},
-		},
-		Trigger: vocode.FnCallTrigger{
-			Type:   vocode.FnCallTriggerType,
-			Config: map[string]any{},
+		ActionReqBase: vocode.ActionReqBase{
+			Type: vocode.ExternalActionType,
+			Config: vocode.ExternalActionConfig{
+				ProcessingMode: vocode.MutedProcessing,
+				Name:           "Baseconfig",
+				Description:    "Some description",
+				URL:            "https://foobar.com",
+				InputSchema:    map[string]any{},
+			},
+			Trigger: vocode.FnCallTrigger{
+				Type:   vocode.FnCallTriggerType,
+				Config: map[string]any{},
+			},
 		},
 	}
 
@@ -33,13 +35,15 @@ func main() {
 	log.Printf("%#v", res)
 
 	trCallActionReq := &vocode.CreateActionReq{
-		Type: vocode.TransferCallActionType,
-		Config: vocode.TransferCallActionConfig{
-			PhoneNr: "+19517449404",
-		},
-		Trigger: vocode.FnCallTrigger{
-			Type:   vocode.FnCallTriggerType,
-			Config: map[string]any{},
+		ActionReqBase: vocode.ActionReqBase{
+			Type: vocode.TransferCallActionType,
+			Config: vocode.TransferCallActionConfig{
+				PhoneNr: "+19517449404",
+			},
+			Trigger: vocode.FnCallTrigger{
+				Type:   vocode.FnCallTriggerType,
+				Config: map[string]any{},
+			},
 		},
 	}
 

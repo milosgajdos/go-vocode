@@ -1,28 +1,5 @@
 package vocode
 
-type Field struct {
-	Type  string
-	Label string
-	Name  string
-	Desc  string
-}
-
-type Template struct {
-	ID         string   `json:"id"`
-	UserID     string   `json:"user_id"`
-	Label      string   `json:"label"`
-	ReqCtxKeys []string `json:"required_context_keys"`
-}
-
-type Prompt struct {
-	ID          string    `json:"id"`
-	UserID      string    `json:"user_id"`
-	Content     string    `json:"content"`
-	Fields      []Field   `json:"collect_fields"`
-	CtxEndpoint string    `json:"context_endpoint"`
-	Template    *Template `json:"prompt_template"`
-}
-
 type Event string
 
 const (

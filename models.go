@@ -1,33 +1,5 @@
 package vocode
 
-type Event string
-
-const (
-	EventMessage          Event = "event_message"
-	EventAction           Event = "event_action"
-	EventCallConnected    Event = "event_phone_call_connected"
-	EventCallEnded        Event = "event_phone_call_ended"
-	EventCallDidntConnect Event = "event_phone_call_did_not_connect"
-	EventTranscript       Event = "event_transcript"
-	EventRecording        Event = "event_recording"
-	EventHumanDetection   Event = "event_human_detection"
-)
-
-type WebhookMethod string
-
-const (
-	Get  WebhookMethod = "GET"
-	Post WebhookMethod = "POST"
-)
-
-type Webhook struct {
-	ID     string        `json:"id"`
-	UserID string        `json:"user_id"`
-	Subs   []Event       `json:"subscriptions"`
-	URL    string        `json:"url"`
-	Method WebhookMethod `json:"method"`
-}
-
 type VectorDBType string
 
 const (
@@ -106,13 +78,4 @@ type InboundAgent struct {
 	OpenAIAccount       *OpenAIAccount     `json:"openai_account_connection"`
 	RunDNCDetecion      bool               `json:"run_do_not_call_detection"`
 	LLMTemperature      int                `json:"llm_temperature"`
-}
-
-type TelAccount struct {
-	ID               string             `json:"id"`
-	UserID           string             `json:"user_id"`
-	Type             AcctConnectionType `json:"type"`
-	Credentials      map[string]any     `json:"credentials"`
-	SteeringPool     []string           `json:"steering_pool"`
-	SupportAnyCaller bool               `json:"account_supports_any_caller_id"`
 }

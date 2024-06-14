@@ -15,7 +15,7 @@ import (
 type AccountConnType string
 
 const (
-	OpenaiConnType AccountConnType = "account_connection_openai"
+	OpenAIConnType AccountConnType = "account_connection_openai"
 	TwilioConnType AccountConnType = "account_connection_twilio"
 )
 
@@ -63,7 +63,7 @@ func (a *AccountConn) UnmarshalJSON(data []byte) error {
 	a.AccountConnsBase = base
 
 	switch a.Type {
-	case OpenaiConnType:
+	case OpenAIConnType:
 		var openaiAccount OpenAIAccount
 		if err := json.Unmarshal(data, &openaiAccount); err != nil {
 			return err
@@ -90,21 +90,21 @@ func (a AccountConnReqBase) MarshalJSON() ([]byte, error) {
 	type Alias AccountConnReqBase
 
 	switch a.Type {
-	case OpenaiConnType:
-		return json.Marshal(&struct {
-			*Alias
-			*TwilioAccount
-		}{
-			Alias:         (*Alias)(&a),
-			TwilioAccount: a.TwilioAccount,
-		})
-	case TwilioConnType:
+	case OpenAIConnType:
 		return json.Marshal(&struct {
 			*Alias
 			*OpenAIAccount
 		}{
 			Alias:         (*Alias)(&a),
 			OpenAIAccount: a.OpenAIAccount,
+		})
+	case TwilioConnType:
+		return json.Marshal(&struct {
+			*Alias
+			*TwilioAccount
+		}{
+			Alias:         (*Alias)(&a),
+			TwilioAccount: a.TwilioAccount,
 		})
 	default:
 		return nil, fmt.Errorf("unsupported account connection type: %s", a.Type)

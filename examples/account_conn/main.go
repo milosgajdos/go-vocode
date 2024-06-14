@@ -33,7 +33,7 @@ func main() {
 
 	oaiConnReq := &vocode.CreateAccountConnReq{
 		AccountConnReqBase: vocode.AccountConnReqBase{
-			Type: vocode.OpenaiConnType,
+			Type: vocode.OpenAIConnType,
 			OpenAIAccount: &vocode.OpenAIAccount{
 				Creds: &vocode.OpenAICreds{
 					APIKey: oaiAPIKey,

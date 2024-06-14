@@ -1,23 +1,5 @@
 package vocode
 
-type OpenAICreds struct {
-	APIKey string `json:"openai_api_key"`
-}
-
-type AcctConnectionType string
-
-const (
-	OpenaiConnType AcctConnectionType = "account_connection_openai"
-	TwilioConnType AcctConnectionType = "account_connection_twilio"
-)
-
-type OpenAIAccount struct {
-	ID     string             `json:"id"`
-	UserID string             `json:"user_id"`
-	Type   AcctConnectionType `json:"type"`
-	Creds  *OpenAICreds       `json:"credentials"`
-}
-
 type InterruptSenseType string
 
 const (

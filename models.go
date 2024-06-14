@@ -1,20 +1,5 @@
 package vocode
 
-type VectorDBType string
-
-const (
-	PineCone VectorDBType = "vector_database_pinecone"
-)
-
-type VectorDB struct {
-	ID     string       `json:"id"`
-	UserID string       `json:"user_id"`
-	Type   VectorDBType `json:"type"`
-	Index  string       `json:"index"`
-	APIKey string       `json:"api_key"`
-	APIEnv string       `json:"api_environment"`
-}
-
 type OpenAICreds struct {
 	APIKey string `json:"openai_api_key"`
 }

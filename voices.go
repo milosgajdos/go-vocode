@@ -180,21 +180,18 @@ func (v *Voice) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		v.AzureVoice = &azureVoice
-
 	case RimeVoiceType:
 		var rimeVoice RimeVoice
 		if err := json.Unmarshal(data, &rimeVoice); err != nil {
 			return err
 		}
 		v.RimeVoice = &rimeVoice
-
 	case ElevenLabsVoiceType:
 		var elevenLabsVoice ElevenLabsVoice
 		if err := json.Unmarshal(data, &elevenLabsVoice); err != nil {
 			return err
 		}
 		v.ElevenLabsVoice = &elevenLabsVoice
-
 	case PlayHtVoiceType:
 		var playHtVoice PlayHtVoice
 		if err := json.Unmarshal(data, &playHtVoice); err != nil {

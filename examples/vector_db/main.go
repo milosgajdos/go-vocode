@@ -23,8 +23,8 @@ func main() {
 	client := vocode.NewClient()
 	ctx := context.Background()
 
-	pcApiKey := os.Getenv("PINECONE_API_KEY")
-	if pcApiKey == "" {
+	pcAPIKey := os.Getenv("PINECONE_API_KEY")
+	if pcAPIKey == "" {
 		log.Fatal("missing pinecone API key")
 	}
 
@@ -32,7 +32,7 @@ func main() {
 		VectorDBReqBase: vocode.VectorDBReqBase{
 			Type:   vocode.PineConeVectorDB,
 			Index:  pcIndex,
-			APIKey: pcApiKey,
+			APIKey: pcAPIKey,
 			APIEnv: pcEnv,
 		},
 	}

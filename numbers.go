@@ -38,12 +38,12 @@ type Numbers struct {
 }
 
 type TelAccount struct {
-	ID               string             `json:"id"`
-	UserID           string             `json:"user_id"`
-	Type             AcctConnectionType `json:"type"`
-	Credentials      map[string]any     `json:"credentials"`
-	SteeringPool     []string           `json:"steering_pool"`
-	SupportAnyCaller bool               `json:"account_supports_any_caller_id"`
+	ID               string          `json:"id"`
+	UserID           string          `json:"user_id"`
+	Type             AccountConnType `json:"type"`
+	Credentials      map[string]any  `json:"credentials"`
+	SteeringPool     []string        `json:"steering_pool"`
+	SupportAnyCaller bool            `json:"account_supports_any_caller_id"`
 }
 
 type Number struct {

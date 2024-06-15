@@ -88,17 +88,48 @@ type VoiceBase struct {
 	Type   VoiceType `json:"type"`
 }
 
-type Voice struct {
-	VoiceBase
-	AzureVoice      *AzureVoice      `json:",omitempty"`
-	RimeVoice       *RimeVoice       `json:",omitempty"`
-	ElevenLabsVoice *ElevenLabsVoice `json:",omitempty"`
-	PlayHtVoice     *PlayHtVoice     `json:",omitempty"`
-}
-
 type Voices struct {
 	Items []Voice `json:"items"`
 	*Paging
+}
+
+type Voice struct {
+	VoiceBase
+	*AzureVoice
+	*RimeVoice
+	*ElevenLabsVoice
+	*PlayHtVoice
+}
+
+func (v *Voice) UnmarshalJSON(data []byte) error {
+	var id string
+	if err := json.Unmarshal(data, &id); err == nil {
+		v.ID = id
+		return nil
+	}
+
+	var base VoiceBase
+	if err := json.Unmarshal(data, &base); err != nil {
+		return err
+	}
+	v.VoiceBase = base
+
+	switch v.Type {
+	case AzureVoiceType:
+		v.AzureVoice = &AzureVoice{}
+		return json.Unmarshal(data, v.AzureVoice)
+	case RimeVoiceType:
+		v.RimeVoice = &RimeVoice{}
+		return json.Unmarshal(data, v.RimeVoice)
+	case ElevenLabsVoiceType:
+		v.ElevenLabsVoice = &ElevenLabsVoice{}
+		return json.Unmarshal(data, v.ElevenLabsVoice)
+	case PlayHtVoiceType:
+		v.PlayHtVoice = &PlayHtVoice{}
+		return json.Unmarshal(data, v.PlayHtVoice)
+	}
+
+	return nil
 }
 
 type VoiceReqBase struct {
@@ -164,43 +195,6 @@ type UpdateVoiceReq struct {
 
 func (v UpdateVoiceReq) MarshalJSON() ([]byte, error) {
 	return v.VoiceReqBase.MarshalJSON()
-}
-
-func (v *Voice) UnmarshalJSON(data []byte) error {
-	var base VoiceBase
-	if err := json.Unmarshal(data, &base); err != nil {
-		return err
-	}
-	v.VoiceBase = base
-
-	switch v.Type {
-	case AzureVoiceType:
-		var azureVoice AzureVoice
-		if err := json.Unmarshal(data, &azureVoice); err != nil {
-			return err
-		}
-		v.AzureVoice = &azureVoice
-	case RimeVoiceType:
-		var rimeVoice RimeVoice
-		if err := json.Unmarshal(data, &rimeVoice); err != nil {
-			return err
-		}
-		v.RimeVoice = &rimeVoice
-	case ElevenLabsVoiceType:
-		var elevenLabsVoice ElevenLabsVoice
-		if err := json.Unmarshal(data, &elevenLabsVoice); err != nil {
-			return err
-		}
-		v.ElevenLabsVoice = &elevenLabsVoice
-	case PlayHtVoiceType:
-		var playHtVoice PlayHtVoice
-		if err := json.Unmarshal(data, &playHtVoice); err != nil {
-			return err
-		}
-		v.PlayHtVoice = &playHtVoice
-	}
-
-	return nil
 }
 
 func (c *Client) ListVoices(ctx context.Context, paging *PageParams) (*Voices, error) {

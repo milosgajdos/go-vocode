@@ -19,25 +19,7 @@ const (
 	TwilioTelProvider TelProvider = "twilio"
 )
 
-type NumbersItem struct {
-	ID             string         `json:"id"`
-	UserID         string         `json:"user_id"`
-	Label          string         `json:"label"`
-	Number         string         `json:"number"`
-	TelAccountID   string         `json:"telephony_account_connection"`
-	TelProvider    TelProvider    `json:"telephony_provider"`
-	InboundAgentID string         `json:"inbound_agent,omitempty"`
-	OutboundOnly   bool           `json:"outbound_only"`
-	Active         bool           `json:"active"`
-	ExampleCtx     map[string]any `json:"example_context,omitempty"`
-}
-
-type Numbers struct {
-	Items []NumbersItem `json:"items"`
-	*Paging
-}
-
-type TelAccount struct {
+type TelAccountConn struct {
 	ID               string          `json:"id"`
 	UserID           string          `json:"user_id"`
 	Type             AccountConnType `json:"type"`
@@ -46,17 +28,44 @@ type TelAccount struct {
 	SupportAnyCaller bool            `json:"account_supports_any_caller_id"`
 }
 
+func (ta *TelAccountConn) UnmarshalJSON(data []byte) error {
+	// Check if the data is a plain string ID
+	var id string
+	if err := json.Unmarshal(data, &id); err == nil {
+		ta.ID = id
+		return nil
+	}
+
+	// Otherwise, unmarshal as a full TelAccountConn object
+	type Alias TelAccountConn
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(ta),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type Numbers struct {
+	Items []Number `json:"items"`
+	*Paging
+}
+
 type Number struct {
-	ID           string         `json:"id"`
-	UserID       string         `json:"user_id"`
-	Active       bool           `json:"active"`
-	Label        string         `json:"label"`
-	InboundAgent *Agent         `json:"inbound_agent"`
-	OutboundOnly bool           `json:"outbound_only"`
-	ExampleCtx   map[string]any `json:"example_context"`
-	Number       string         `json:"number"`
-	TelProvider  TelProvider    `json:"telephony_provider"`
-	TelAccount   *TelAccount    `json:"telephony_account_connection"`
+	ID           string          `json:"id"`
+	UserID       string          `json:"user_id"`
+	Active       bool            `json:"active"`
+	Label        string          `json:"label"`
+	InboundAgent *Agent          `json:"inbound_agent"`
+	OutboundOnly bool            `json:"outbound_only"`
+	ExampleCtx   map[string]any  `json:"example_context"`
+	Number       string          `json:"number"`
+	TelProvider  TelProvider     `json:"telephony_provider"`
+	TelAccount   *TelAccountConn `json:"telephony_account_connection"`
 }
 
 type BuyNumberReq struct {
@@ -66,10 +75,10 @@ type BuyNumberReq struct {
 }
 
 type UpdateNumberReq struct {
-	Label          string         `json:"label"`
-	InboundAgentID string         `json:"inbound_agent"`
-	OutboundOnly   bool           `json:"outbound_only"`
-	ExampleCtx     map[string]any `json:"example_context"`
+	Label        string         `json:"label"`
+	OutboundOnly bool           `json:"outbound_only"`
+	InboundAgent *Agent         `json:"inbound_agent"`
+	ExampleCtx   map[string]any `json:"example_context"`
 }
 
 func (c *Client) ListNumbers(ctx context.Context, paging *PageParams) (*Numbers, error) {

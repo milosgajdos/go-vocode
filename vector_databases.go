@@ -12,123 +12,65 @@ import (
 	"github.com/milosgajdos/go-vocode/request"
 )
 
-type AccountConnType string
+type VectorDBType string
 
 const (
-	OpenAIConnType AccountConnType = "account_connection_openai"
-	TwilioConnType AccountConnType = "account_connection_twilio"
+	PineConeVectorDB VectorDBType = "vector_database_pinecone"
 )
 
-type OpenAICreds struct {
-	APIKey string `json:"openai_api_key"`
-}
-
-type OpenAIAccount struct {
-	Creds *OpenAICreds `json:"credentials"`
-}
-
-type TwilioCreds struct {
-	AccountID string `json:"twilio_account_sid"`
-	AuthToken string `json:"twilio_auth_token"`
-}
-
-type TwilioAccount struct {
-	Creds             *TwilioCreds `json:"credentials"`
-	SteeringPool      []string     `json:"steering_pool"`
-	SupportsAnyCaller bool         `json:"account_supports_any_caller_id"`
-}
-
-type AccountConnsBase struct {
-	ID     string          `json:"id"`
-	UserID string          `json:"user_id"`
-	Type   AccountConnType `json:"type"`
-}
-
-type AccountConns struct {
-	Items []AccountConn `json:"items"`
+type VectorDBs struct {
+	Items []VectorDB `json:"items"`
 	*Paging
 }
 
-type AccountConn struct {
-	AccountConnsBase
-	TwilioAccount *TwilioAccount `json:",omitempty"`
-	OpenAIAccount *OpenAIAccount `json:",omitempty"`
+type VectorDB struct {
+	ID     string       `json:"id"`
+	UserID string       `json:"user_id"`
+	Type   VectorDBType `json:"type"`
+	Index  string       `json:"index"`
+	APIKey string       `json:"api_key"`
+	APIEnv string       `json:"api_environment"`
 }
 
-func (a *AccountConn) UnmarshalJSON(data []byte) error {
-	var base AccountConnsBase
-	if err := json.Unmarshal(data, &base); err != nil {
-		return err
+func (v *VectorDB) UnmarshalJSON(data []byte) error {
+	// Check if the data is a plain string ID
+	var id string
+	if err := json.Unmarshal(data, &id); err == nil {
+		v.ID = id
+		return nil
 	}
-	a.AccountConnsBase = base
 
-	switch a.Type {
-	case OpenAIConnType:
-		var openaiAccount OpenAIAccount
-		if err := json.Unmarshal(data, &openaiAccount); err != nil {
-			return err
-		}
-		a.OpenAIAccount = &openaiAccount
-	case TwilioConnType:
-		var twillioAccount TwilioAccount
-		if err := json.Unmarshal(data, &twillioAccount); err != nil {
-			return err
-		}
-		a.TwilioAccount = &twillioAccount
+	// Otherwise, unmarshal as a full TelAccountConn object
+	type Alias VectorDB
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(v),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-type AccountConnReqBase struct {
-	Type          AccountConnType `json:"type"`
-	TwilioAccount *TwilioAccount  `json:"-"`
-	OpenAIAccount *OpenAIAccount  `json:"-"`
+type VectorDBReqBase struct {
+	Type   VectorDBType `json:"type"`
+	Index  string       `json:"index"`
+	APIKey string       `json:"api_key"`
+	APIEnv string       `json:"api_environment"`
 }
 
-func (a AccountConnReqBase) MarshalJSON() ([]byte, error) {
-	type Alias AccountConnReqBase
-
-	switch a.Type {
-	case OpenAIConnType:
-		return json.Marshal(&struct {
-			*Alias
-			*OpenAIAccount
-		}{
-			Alias:         (*Alias)(&a),
-			OpenAIAccount: a.OpenAIAccount,
-		})
-	case TwilioConnType:
-		return json.Marshal(&struct {
-			*Alias
-			*TwilioAccount
-		}{
-			Alias:         (*Alias)(&a),
-			TwilioAccount: a.TwilioAccount,
-		})
-	default:
-		return nil, fmt.Errorf("unsupported account connection type: %s", a.Type)
-	}
+type CreateVectorDBReq struct {
+	VectorDBReqBase
 }
 
-type CreateAccountConnReq struct {
-	AccountConnReqBase
+type UpdateVectorDBReq struct {
+	VectorDBReqBase
 }
 
-func (a CreateAccountConnReq) MarshalJSON() ([]byte, error) {
-	return a.AccountConnReqBase.MarshalJSON()
-}
-
-type UpdateAccountConnReq struct {
-	AccountConnReqBase
-}
-
-func (a UpdateAccountConnReq) MarshalJSON() ([]byte, error) {
-	return a.AccountConnReqBase.MarshalJSON()
-}
-
-func (c *Client) ListAccountConns(ctx context.Context, paging *PageParams) (*AccountConns, error) {
-	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/account_connections/list")
+func (c *Client) ListVectorDBs(ctx context.Context, paging *PageParams) (*VectorDBs, error) {
+	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/vector_databases/list")
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +95,7 @@ func (c *Client) ListAccountConns(ctx context.Context, paging *PageParams) (*Acc
 
 	switch resp.StatusCode {
 	case http.StatusOK:
-		actions := new(AccountConns)
+		actions := new(VectorDBs)
 		if err := json.NewDecoder(resp.Body).Decode(actions); err != nil {
 			return nil, err
 		}
@@ -173,8 +115,8 @@ func (c *Client) ListAccountConns(ctx context.Context, paging *PageParams) (*Acc
 	}
 }
 
-func (c *Client) GetAccountConn(ctx context.Context, voiceID string) (*AccountConn, error) {
-	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/account_connections")
+func (c *Client) GetVectorDB(ctx context.Context, vectorDbID string) (*VectorDB, error) {
+	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/vector_databases")
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +130,7 @@ func (c *Client) GetAccountConn(ctx context.Context, voiceID string) (*AccountCo
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", voiceID)
+	q.Add("id", vectorDbID)
 	req.URL.RawQuery = q.Encode()
 
 	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
@@ -199,7 +141,7 @@ func (c *Client) GetAccountConn(ctx context.Context, voiceID string) (*AccountCo
 
 	switch resp.StatusCode {
 	case http.StatusOK:
-		action := new(AccountConn)
+		action := new(VectorDB)
 		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
 			return nil, err
 		}
@@ -219,8 +161,8 @@ func (c *Client) GetAccountConn(ctx context.Context, voiceID string) (*AccountCo
 	}
 }
 
-func (c *Client) CreateAccountConn(ctx context.Context, createReq *CreateAccountConnReq) (*AccountConn, error) {
-	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/account_connections/create")
+func (c *Client) CreateVectorDB(ctx context.Context, createReq *CreateVectorDBReq) (*VectorDB, error) {
+	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/vector_databases/create")
 	if err != nil {
 		return nil, err
 	}
@@ -249,7 +191,7 @@ func (c *Client) CreateAccountConn(ctx context.Context, createReq *CreateAccount
 
 	switch resp.StatusCode {
 	case http.StatusOK:
-		action := new(AccountConn)
+		action := new(VectorDB)
 		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
 			return nil, err
 		}
@@ -269,8 +211,8 @@ func (c *Client) CreateAccountConn(ctx context.Context, createReq *CreateAccount
 	}
 }
 
-func (c *Client) UpdateAccountConn(ctx context.Context, actionID string, updateReq *UpdateAccountConnReq) (*AccountConn, error) {
-	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/account_connections/update")
+func (c *Client) UpdateVectorDB(ctx context.Context, actionID string, updateReq *UpdateVectorDBReq) (*VectorDB, error) {
+	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/vector_databases/update")
 	if err != nil {
 		return nil, err
 	}
@@ -302,7 +244,7 @@ func (c *Client) UpdateAccountConn(ctx context.Context, actionID string, updateR
 
 	switch resp.StatusCode {
 	case http.StatusOK:
-		action := new(AccountConn)
+		action := new(VectorDB)
 		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
 			return nil, err
 		}

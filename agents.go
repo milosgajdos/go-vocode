@@ -76,12 +76,12 @@ type Agent struct {
 	EndpointSense       EndpointSenseType   `json:"endpointing_sensitivity"`
 	IVRNavMode          IVRNavModeType      `json:"ivr_navigation_mode"`
 	Speed               float32             `json:"conversation_speed"`
-	InitMsgDelay        int                 `json:"initial_message_delay"`
+	InitMsgDelay        float64             `json:"initial_message_delay"`
 	OpenAIModelOverride bool                `json:"openai_model_name_override"`
 	AsktIfHumanPresent  bool                `json:"ask_if_human_present_on_idle"`
 	OpenAIAccount       *AgentOpenAIAccount `json:"openai_account_connection"`
 	RunDNCDetection     bool                `json:"run_do_not_call_detection"`
-	LLMTemperature      int                 `json:"llm_temperature"`
+	LLMTemperature      float64             `json:"llm_temperature"`
 }
 
 type CreateAgentReq struct{}
@@ -134,7 +134,7 @@ func (c *Client) ListAgents(ctx context.Context, paging *PageParams) (*Agents, e
 	}
 }
 
-func (c *Client) GetAgent(ctx context.Context, voiceID string) (*Agent, error) {
+func (c *Client) GetAgent(ctx context.Context, agentID string) (*Agent, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/agents")
 	if err != nil {
 		return nil, err
@@ -149,7 +149,7 @@ func (c *Client) GetAgent(ctx context.Context, voiceID string) (*Agent, error) {
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", voiceID)
+	q.Add("id", agentID)
 	req.URL.RawQuery = q.Encode()
 
 	resp, err := request.Do[APIError](c.opts.HTTPClient, req)

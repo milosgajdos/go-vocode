@@ -51,7 +51,7 @@ type Number struct {
 	UserID       string         `json:"user_id"`
 	Active       bool           `json:"active"`
 	Label        string         `json:"label"`
-	InboundAgent *InboundAgent  `json:"inbound_agent"`
+	InboundAgent *Agent         `json:"inbound_agent"`
 	OutboundOnly bool           `json:"outbound_only"`
 	ExampleCtx   map[string]any `json:"example_context"`
 	Number       string         `json:"number"`

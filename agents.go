@@ -30,16 +30,16 @@ const (
 type InterruptSenseType string
 
 const (
-	LowInterrupt  InterruptSenseType = "low"
-	HighInterrupt InterruptSenseType = "high"
+	LowInterruptSense  InterruptSenseType = "low"
+	HighInterruptSense InterruptSenseType = "high"
 )
 
 type EndpointSenseType string
 
 const (
-	AutoEndpoint      EndpointSenseType = "auto"
-	RelaxedEndpoint   EndpointSenseType = "relaxed"
-	SensitiveEndpoint EndpointSenseType = "sensitive"
+	AutoEndpointSense      EndpointSenseType = "auto"
+	RelaxedEndpointSense   EndpointSenseType = "relaxed"
+	SensitiveEndpointSense EndpointSenseType = "sensitive"
 )
 
 type IVRNavModeType string
@@ -51,7 +51,7 @@ const (
 
 type AgentOpenAIAccount struct {
 	AccountConnsBase
-	OpenAIAccount *OpenAIAccount `json:"-"`
+	OpenAIAccount *OpenAIAccount
 }
 
 type Agents struct {
@@ -60,33 +60,68 @@ type Agents struct {
 }
 
 type Agent struct {
-	ID                  string              `json:"id"`
-	UserID              string              `json:"user_id"`
-	Name                string              `json:"name"`
-	Prompt              *Prompt             `json:"prompt"`
-	Language            Language            `json:"language"`
-	Actions             []Action            `json:"actions"`
-	Voice               *Voice              `json:"voice"`
-	InitMsg             string              `json:"initial_msg"`
-	Webhook             *Webhook            `json:"webhook"`
-	VectorDB            *VectorDB           `json:"vector_database"`
-	InterruptSense      InterruptSenseType  `json:"interrupt_sensitivity"`
-	CtxEndpint          string              `json:"context_endpint"`
-	NoiseSuppression    bool                `json:"noise_suppression"`
-	EndpointSense       EndpointSenseType   `json:"endpointing_sensitivity"`
-	IVRNavMode          IVRNavModeType      `json:"ivr_navigation_mode"`
-	Speed               float32             `json:"conversation_speed"`
-	InitMsgDelay        float64             `json:"initial_message_delay"`
-	OpenAIModelOverride bool                `json:"openai_model_name_override"`
-	AsktIfHumanPresent  bool                `json:"ask_if_human_present_on_idle"`
-	OpenAIAccount       *AgentOpenAIAccount `json:"openai_account_connection"`
-	RunDNCDetection     bool                `json:"run_do_not_call_detection"`
-	LLMTemperature      float64             `json:"llm_temperature"`
+	ID                       string              `json:"id"`
+	UserID                   string              `json:"user_id"`
+	Name                     string              `json:"name"`
+	Prompt                   *Prompt             `json:"prompt"`
+	Language                 Language            `json:"language"`
+	Actions                  []Action            `json:"actions"`
+	Voice                    *Voice              `json:"voice"`
+	InitMsg                  string              `json:"initial_msg"`
+	Webhook                  *Webhook            `json:"webhook"`
+	VectorDB                 *VectorDB           `json:"vector_database"`
+	InterruptSense           InterruptSenseType  `json:"interrupt_sensitivity"`
+	CtxEndpint               string              `json:"context_endpint"`
+	NoiseSuppression         bool                `json:"noise_suppression"`
+	EndpointSense            EndpointSenseType   `json:"endpointing_sensitivity"`
+	IVRNavMode               IVRNavModeType      `json:"ivr_navigation_mode"`
+	Speed                    float32             `json:"conversation_speed"`
+	InitMsgDelay             float64             `json:"initial_message_delay"`
+	OpenAIModelOverride      bool                `json:"openai_model_name_override"`
+	AsktIfHumanPresentOnIdle bool                `json:"ask_if_human_present_on_idle"`
+	OpenAIAccount            *AgentOpenAIAccount `json:"openai_account_connection"`
+	RunDNCDetection          bool                `json:"run_do_not_call_detection"`
+	LLMTemperature           float64             `json:"llm_temperature"`
 }
 
-type CreateAgentReq struct{}
+type AgentReqbase struct {
+	Name                     string             `json:"name"`
+	Prompt                   string             `json:"prompt"`
+	Language                 Language           `json:"language"`
+	Actions                  []Action           `json:"actions"`
+	Voice                    string             `json:"voice"`
+	InitMsg                  string             `json:"initial_message,omitempty"`
+	Webhook                  string             `json:"webhook,omitempty"`
+	VectorDB                 string             `json:"vector_database,omitempty"`
+	InterruptSense           InterruptSenseType `json:"interrupt_sensitivity"`
+	CtxEndpint               string             `json:"context_endpoint,omitempty"`
+	NoiseSuppression         bool               `json:"noise_suppression"`
+	EndpointSense            EndpointSenseType  `json:"endpointing_sensitivity"`
+	IVRNavMode               IVRNavModeType     `json:"ivr_navigation_mode"`
+	Speed                    float32            `json:"conversation_speed"`
+	InitMsgDelay             float64            `json:"initial_message_delay"`
+	OpenAIModelOverride      string             `json:"openai_model_name_override,omitempty"`
+	AsktIfHumanPresentOnIdle bool               `json:"ask_if_human_present_on_idle"`
+	OpenAIAccount            *OpenAIAccount     `json:"openai_account_connection"`
+	RunDNCDetection          bool               `json:"run_do_not_call_detection"`
+	LLMTemperature           float64            `json:"llm_temperature"`
+}
 
-type UpdateAgentReq struct{}
+type CreateAgentReq struct {
+	AgentReqbase
+}
+
+func (a CreateAgentReq) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.AgentReqbase)
+}
+
+type UpdateAgentReq struct {
+	AgentReqbase
+}
+
+func (a UpdateAgentReq) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.AgentReqbase)
+}
 
 func (c *Client) ListAgents(ctx context.Context, paging *PageParams) (*Agents, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/agents/list")

@@ -51,7 +51,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed creating external action: %v", err)
 	}
-	log.Printf("%#v", res)
 
 	a, err := client.GetAction(ctx, res.ID)
 	if err != nil {

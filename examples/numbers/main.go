@@ -52,7 +52,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed getting numbers: %v", err)
 	}
-
 	log.Printf("got numbers: %d", len(numbers.Items))
 
 	if len(numbers.Items) > 0 {
@@ -60,7 +59,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("failed getting number: %v", err)
 		}
-		log.Printf("got number: %v", number)
+		log.Printf("got number: %+v", number)
 	}
 
 	if _, err := client.CancelNumber(ctx, number.Number); err != nil {

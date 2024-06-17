@@ -32,6 +32,11 @@ type Template struct {
 	ReqCtxKeys []string `json:"required_context_keys"`
 }
 
+type Prompts struct {
+	Items []Prompt `json:"items"`
+	*Paging
+}
+
 type Prompt struct {
 	ID          string    `json:"id"`
 	UserID      string    `json:"user_id"`
@@ -41,9 +46,26 @@ type Prompt struct {
 	Template    *Template `json:"prompt_template"`
 }
 
-type Prompts struct {
-	Items []Prompt `json:"items"`
-	*Paging
+func (p *Prompt) UnmarshalJSON(data []byte) error {
+	// Check if the data is a plain string ID
+	var id string
+	if err := json.Unmarshal(data, &id); err == nil {
+		p.ID = id
+		return nil
+	}
+
+	// Otherwise, unmarshal as a full TelAccountConn object
+	type Alias Prompt
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(p),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type PromptReqBase struct {
@@ -107,7 +129,7 @@ func (c *Client) ListPrompts(ctx context.Context, paging *PageParams) (*Prompts,
 	}
 }
 
-func (c *Client) GetPrompt(ctx context.Context, voiceID string) (*Prompt, error) {
+func (c *Client) GetPrompt(ctx context.Context, promptID string) (*Prompt, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/prompts")
 	if err != nil {
 		return nil, err
@@ -122,7 +144,7 @@ func (c *Client) GetPrompt(ctx context.Context, voiceID string) (*Prompt, error)
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", voiceID)
+	q.Add("id", promptID)
 	req.URL.RawQuery = q.Encode()
 
 	resp, err := request.Do[APIError](c.opts.HTTPClient, req)

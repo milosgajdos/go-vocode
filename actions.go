@@ -117,9 +117,11 @@ type ActionBase struct {
 	Trigger interface{} `json:"action_trigger"`
 }
 
+// TODO: Unmarshal from a string
+// See voice
 type Action struct {
 	ActionBase
-	Config interface{} `json:"config"`
+	Config interface{} `json:"config,omitempty"`
 }
 
 type Actions struct {

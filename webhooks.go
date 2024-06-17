@@ -32,17 +32,39 @@ const (
 	Post WebhookMethod = "POST"
 )
 
-type Webhook struct {
-	ID     string        `json:"id"`
-	UserID string        `json:"user_id"`
-	Subs   []Event       `json:"subscriptions"`
-	URL    string        `json:"url"`
-	Method WebhookMethod `json:"method"`
-}
-
 type Webhooks struct {
 	Items []Webhook `json:"items"`
 	*Paging
+}
+
+type Webhook struct {
+	ID     string        `json:"id,omitempty"`
+	UserID string        `json:"user_id,omitempty"`
+	Subs   []Event       `json:"subscriptions,omitempty"`
+	URL    string        `json:"url,omitempty"`
+	Method WebhookMethod `json:"method,omitempty"`
+}
+
+func (w *Webhook) UnmarshalJSON(data []byte) error {
+	// Check if the data is a plain string ID
+	var id string
+	if err := json.Unmarshal(data, &id); err == nil {
+		w.ID = id
+		return nil
+	}
+
+	// Otherwise, unmarshal as a full TelAccountConn object
+	type Alias Webhook
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(w),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type WebhookReqBase struct {
@@ -105,7 +127,7 @@ func (c *Client) ListWebhooks(ctx context.Context, paging *PageParams) (*Webhook
 	}
 }
 
-func (c *Client) GetWebhook(ctx context.Context, voiceID string) (*Webhook, error) {
+func (c *Client) GetWebhook(ctx context.Context, webhookID string) (*Webhook, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/webhooks")
 	if err != nil {
 		return nil, err
@@ -120,7 +142,7 @@ func (c *Client) GetWebhook(ctx context.Context, voiceID string) (*Webhook, erro
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", voiceID)
+	q.Add("id", webhookID)
 	req.URL.RawQuery = q.Encode()
 
 	resp, err := request.Do[APIError](c.opts.HTTPClient, req)

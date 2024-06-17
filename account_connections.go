@@ -38,6 +38,88 @@ type TwilioAccount struct {
 	SupportsAnyCaller bool         `json:"account_supports_any_caller_id"`
 }
 
+type TelAccountConn struct {
+	ID               string          `json:"id"`
+	UserID           string          `json:"user_id"`
+	Type             AccountConnType `json:"type"`
+	Credentials      map[string]any  `json:"credentials"`
+	SteeringPool     []string        `json:"steering_pool"`
+	SupportAnyCaller bool            `json:"account_supports_any_caller_id"`
+}
+
+func (ta *TelAccountConn) UnmarshalJSON(data []byte) error {
+	// Check if the data is a plain string ID
+	var id string
+	if err := json.Unmarshal(data, &id); err == nil {
+		ta.ID = id
+		return nil
+	}
+
+	// Otherwise, unmarshal as a full TelAccountConn object
+	type Alias TelAccountConn
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(ta),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type TellMetadataType string
+
+const (
+	TelMetadataVonage TellMetadataType = "telephony_metadata_vonage"
+	TelMetadataTwilio TellMetadataType = "telephony_metadata_twilio"
+)
+
+type VonageTelMetadata struct {
+	Type TellMetadataType `json:"type"`
+}
+
+type TwilioTelMetadata struct {
+	Type               TellMetadataType `json:"type"`
+	CallSID            string           `json:"call_sid"`
+	CallStatus         string           `json:"call_status"`
+	TransferCallSID    string           `json:"transfer_call_sid"`
+	TransferCallStatus string           `json:"transfer_call_status"`
+	ConferenceSID      string           `json:"conference_sid"`
+}
+
+type TelMetadataBase struct {
+	Type TellMetadataType `json:"type"`
+}
+
+type TelMetadata struct {
+	TelMetadataBase
+	*VonageTelMetadata
+	*TwilioTelMetadata
+}
+
+func (t *TelMetadata) UnmarshalJSON(data []byte) error {
+	var base TelMetadataBase
+	if err := json.Unmarshal(data, &base); err != nil {
+		return err
+	}
+	t.TelMetadataBase = base
+
+	switch t.TelMetadataBase.Type {
+	case TelMetadataVonage:
+		t.VonageTelMetadata = &VonageTelMetadata{
+			Type: TelMetadataVonage,
+		}
+		return nil
+	case TelMetadataTwilio:
+		t.TwilioTelMetadata = &TwilioTelMetadata{}
+		return json.Unmarshal(data, t.TwilioTelMetadata)
+	}
+
+	return nil
+}
+
 type AccountConnsBase struct {
 	ID     string          `json:"id"`
 	UserID string          `json:"user_id"`

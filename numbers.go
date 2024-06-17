@@ -19,37 +19,6 @@ const (
 	TwilioTelProvider TelProvider = "twilio"
 )
 
-type TelAccountConn struct {
-	ID               string          `json:"id"`
-	UserID           string          `json:"user_id"`
-	Type             AccountConnType `json:"type"`
-	Credentials      map[string]any  `json:"credentials"`
-	SteeringPool     []string        `json:"steering_pool"`
-	SupportAnyCaller bool            `json:"account_supports_any_caller_id"`
-}
-
-func (ta *TelAccountConn) UnmarshalJSON(data []byte) error {
-	// Check if the data is a plain string ID
-	var id string
-	if err := json.Unmarshal(data, &id); err == nil {
-		ta.ID = id
-		return nil
-	}
-
-	// Otherwise, unmarshal as a full TelAccountConn object
-	type Alias TelAccountConn
-	aux := &struct {
-		*Alias
-	}{
-		Alias: (*Alias)(ta),
-	}
-	if err := json.Unmarshal(data, &aux); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 type Numbers struct {
 	Items []Number `json:"items"`
 	*Paging

@@ -88,7 +88,7 @@ type AgentReqbase struct {
 	Name                     string             `json:"name"`
 	Prompt                   string             `json:"prompt"`
 	Language                 Language           `json:"language"`
-	Actions                  []Action           `json:"actions"`
+	Actions                  []string           `json:"actions"`
 	Voice                    string             `json:"voice"`
 	InitMsg                  string             `json:"initial_message,omitempty"`
 	Webhook                  string             `json:"webhook,omitempty"`

@@ -4,18 +4,21 @@ import (
 	"context"
 	"flag"
 	"log"
+	"strings"
 
 	"github.com/milosgajdos/go-vocode"
 )
 
 var (
-	prompt string
-	voice  string
+	prompt  string
+	voice   string
+	actions string
 )
 
 func init() {
 	flag.StringVar(&prompt, "prompt", "", "prompt ID")
 	flag.StringVar(&voice, "voice", "", "voice ID")
+	flag.StringVar(&actions, "actions", "", "comma separated list of actions")
 }
 
 func main() {
@@ -23,6 +26,8 @@ func main() {
 
 	client := vocode.NewClient()
 	ctx := context.Background()
+
+	ax := strings.Split(actions, ",")
 
 	createAgentReq := &vocode.CreateAgentReq{
 		AgentReqbase: vocode.AgentReqbase{
@@ -35,6 +40,7 @@ func main() {
 			IVRNavMode:               vocode.OffIVRMode,
 			Speed:                    1.0,
 			AsktIfHumanPresentOnIdle: true,
+			Actions:                  ax,
 		},
 	}
 

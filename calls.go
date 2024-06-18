@@ -83,7 +83,7 @@ type Call struct {
 	EndTime         string              `json:"end_time"`
 	HIPAACompliant  bool                `json:"hipaa_compliant"`
 	OnNoHumanAnswer CallOnNoHumanAnswer `json:"on_no_human_answer"`
-	Context         map[string]any      `json:"context"`
+	Context         map[string]any      `json:"context,omitempty"`
 	RunDNC          bool                `json:"run_do_not_call_detection"`
 	TelAccountConn  *TelAccountConn     `json:"telephony_account_connection"`
 	TelParams       map[string]any      `json:"telephony_params"`
@@ -96,7 +96,7 @@ type CreateCallReq struct {
 	OnHumanNoAnswer CallOnNoHumanAnswer `json:"on_no_human_answer"`
 	RunDNC          bool                `json:"run_do_not_call_detection"`
 	HIPAACompliant  bool                `json:"hipaa_compliant"`
-	Context         map[string]any      `json:"context"`
+	Context         map[string]any      `json:"context,omitempty"`
 }
 
 type EndCallReq struct {
@@ -121,7 +121,7 @@ func (c *Client) ListCalls(ctx context.Context, paging *PageParams) (*Calls, err
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -134,8 +134,8 @@ func (c *Client) ListCalls(ctx context.Context, paging *PageParams) (*Calls, err
 			return nil, err
 		}
 		return actions, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -167,7 +167,7 @@ func (c *Client) GetCall(ctx context.Context, callID string) (*Call, error) {
 	q.Add("id", callID)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -180,8 +180,8 @@ func (c *Client) GetCall(ctx context.Context, callID string) (*Call, error) {
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -217,7 +217,7 @@ func (c *Client) CreateCall(ctx context.Context, createReq *CreateCallReq) (*Cal
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -230,8 +230,8 @@ func (c *Client) CreateCall(ctx context.Context, createReq *CreateCallReq) (*Cal
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -271,7 +271,7 @@ func (c *Client) EndCall(ctx context.Context, callID string) (*Call, error) {
 	q.Add("id", callID)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -284,8 +284,8 @@ func (c *Client) EndCall(ctx context.Context, callID string) (*Call, error) {
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -317,7 +317,7 @@ func (c *Client) GetCallRecording(ctx context.Context, callID string, w io.Write
 	q.Add("id", callID)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return err
 	}
@@ -329,8 +329,8 @@ func (c *Client) GetCallRecording(ctx context.Context, callID string, w io.Write
 			return err
 		}
 		return nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return errors.Join(err, jsonErr)
 		}

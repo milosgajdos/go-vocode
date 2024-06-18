@@ -68,7 +68,7 @@ func (c *Client) ListNumbers(ctx context.Context, paging *PageParams) (*Numbers,
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -81,8 +81,8 @@ func (c *Client) ListNumbers(ctx context.Context, paging *PageParams) (*Numbers,
 			return nil, err
 		}
 		return numbers, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -114,7 +114,7 @@ func (c *Client) GetNumber(ctx context.Context, number string) (*Number, error) 
 	q.Add("phone_number", number)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -127,8 +127,8 @@ func (c *Client) GetNumber(ctx context.Context, number string) (*Number, error) 
 			return nil, err
 		}
 		return number, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -164,7 +164,7 @@ func (c *Client) BuyNumber(ctx context.Context, buyReq *BuyNumberReq) (*Number, 
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -177,8 +177,8 @@ func (c *Client) BuyNumber(ctx context.Context, buyReq *BuyNumberReq) (*Number, 
 			return nil, err
 		}
 		return nrResp, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -217,7 +217,7 @@ func (c *Client) UpdateNumber(ctx context.Context, number string, updateReq *Upd
 	q.Add("phone_number", number)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -230,8 +230,8 @@ func (c *Client) UpdateNumber(ctx context.Context, number string, updateReq *Upd
 			return nil, err
 		}
 		return nrResp, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -263,7 +263,7 @@ func (c *Client) CancelNumber(ctx context.Context, number string) (*Number, erro
 	q.Add("phone_number", number)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -276,8 +276,8 @@ func (c *Client) CancelNumber(ctx context.Context, number string) (*Number, erro
 			return nil, err
 		}
 		return nrResp, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}

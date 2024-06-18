@@ -87,7 +87,7 @@ func (c *Client) ListVectorDBs(ctx context.Context, paging *PageParams) (*Vector
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -100,8 +100,8 @@ func (c *Client) ListVectorDBs(ctx context.Context, paging *PageParams) (*Vector
 			return nil, err
 		}
 		return actions, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -133,7 +133,7 @@ func (c *Client) GetVectorDB(ctx context.Context, vectorDbID string) (*VectorDB,
 	q.Add("id", vectorDbID)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -146,8 +146,8 @@ func (c *Client) GetVectorDB(ctx context.Context, vectorDbID string) (*VectorDB,
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -183,7 +183,7 @@ func (c *Client) CreateVectorDB(ctx context.Context, createReq *CreateVectorDBRe
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -196,8 +196,8 @@ func (c *Client) CreateVectorDB(ctx context.Context, createReq *CreateVectorDBRe
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -236,7 +236,7 @@ func (c *Client) UpdateVectorDB(ctx context.Context, actionID string, updateReq 
 	q.Add("id", actionID)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -249,8 +249,8 @@ func (c *Client) UpdateVectorDB(ctx context.Context, actionID string, updateReq 
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}

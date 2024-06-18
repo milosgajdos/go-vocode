@@ -215,7 +215,7 @@ func (c *Client) ListVoices(ctx context.Context, paging *PageParams) (*Voices, e
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -228,8 +228,8 @@ func (c *Client) ListVoices(ctx context.Context, paging *PageParams) (*Voices, e
 			return nil, err
 		}
 		return actions, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -261,7 +261,7 @@ func (c *Client) GetVoice(ctx context.Context, voiceID string) (*Voice, error) {
 	q.Add("id", voiceID)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -274,8 +274,8 @@ func (c *Client) GetVoice(ctx context.Context, voiceID string) (*Voice, error) {
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -311,7 +311,7 @@ func (c *Client) CreateVoice(ctx context.Context, createReq *CreateVoiceReq) (*V
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -324,8 +324,8 @@ func (c *Client) CreateVoice(ctx context.Context, createReq *CreateVoiceReq) (*V
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -364,7 +364,7 @@ func (c *Client) UpdateVoice(ctx context.Context, actionID string, updateReq *Up
 	q.Add("id", actionID)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -377,8 +377,8 @@ func (c *Client) UpdateVoice(ctx context.Context, actionID string, updateReq *Up
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}

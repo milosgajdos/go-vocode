@@ -117,8 +117,6 @@ type ActionBase struct {
 	Trigger interface{} `json:"action_trigger"`
 }
 
-// TODO: Unmarshal from a string
-// See voice
 type Action struct {
 	ActionBase
 	Config interface{} `json:"config,omitempty"`
@@ -245,7 +243,7 @@ func (c *Client) ListActions(ctx context.Context, paging *PageParams) (*Actions,
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -258,8 +256,8 @@ func (c *Client) ListActions(ctx context.Context, paging *PageParams) (*Actions,
 			return nil, err
 		}
 		return actions, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -291,7 +289,7 @@ func (c *Client) GetAction(ctx context.Context, actionID string) (*Action, error
 	q.Add("id", actionID)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -304,8 +302,8 @@ func (c *Client) GetAction(ctx context.Context, actionID string) (*Action, error
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -341,7 +339,7 @@ func (c *Client) CreateAction(ctx context.Context, createReq *CreateActionReq) (
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -354,8 +352,8 @@ func (c *Client) CreateAction(ctx context.Context, createReq *CreateActionReq) (
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -394,7 +392,7 @@ func (c *Client) UpdateAction(ctx context.Context, actionID string, updateReq *U
 	q.Add("id", actionID)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -407,8 +405,8 @@ func (c *Client) UpdateAction(ctx context.Context, actionID string, updateReq *U
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}

@@ -84,6 +84,26 @@ type Agent struct {
 	LLMTemperature           float64             `json:"llm_temperature"`
 }
 
+func (a *Agent) UnmarshalJSON(data []byte) error {
+	var id string
+	if err := json.Unmarshal(data, &id); err == nil {
+		a.ID = id
+		return nil
+	}
+
+	type Alias Agent
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(a),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type AgentReqbase struct {
 	Name                     string             `json:"name"`
 	Prompt                   string             `json:"prompt"`
@@ -141,7 +161,7 @@ func (c *Client) ListAgents(ctx context.Context, paging *PageParams) (*Agents, e
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -154,8 +174,8 @@ func (c *Client) ListAgents(ctx context.Context, paging *PageParams) (*Agents, e
 			return nil, err
 		}
 		return actions, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -187,7 +207,7 @@ func (c *Client) GetAgent(ctx context.Context, agentID string) (*Agent, error) {
 	q.Add("id", agentID)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -200,8 +220,8 @@ func (c *Client) GetAgent(ctx context.Context, agentID string) (*Agent, error) {
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -237,7 +257,7 @@ func (c *Client) CreateAgent(ctx context.Context, createReq *CreateAgentReq) (*A
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -250,8 +270,8 @@ func (c *Client) CreateAgent(ctx context.Context, createReq *CreateAgentReq) (*A
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -290,7 +310,7 @@ func (c *Client) UpdateAgent(ctx context.Context, actionID string, updateReq *Up
 	q.Add("id", actionID)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -303,8 +323,8 @@ func (c *Client) UpdateAgent(ctx context.Context, actionID string, updateReq *Up
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}

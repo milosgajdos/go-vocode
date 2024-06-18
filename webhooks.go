@@ -46,14 +46,12 @@ type Webhook struct {
 }
 
 func (w *Webhook) UnmarshalJSON(data []byte) error {
-	// Check if the data is a plain string ID
 	var id string
 	if err := json.Unmarshal(data, &id); err == nil {
 		w.ID = id
 		return nil
 	}
 
-	// Otherwise, unmarshal as a full TelAccountConn object
 	type Alias Webhook
 	aux := &struct {
 		*Alias
@@ -99,7 +97,7 @@ func (c *Client) ListWebhooks(ctx context.Context, paging *PageParams) (*Webhook
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -112,8 +110,8 @@ func (c *Client) ListWebhooks(ctx context.Context, paging *PageParams) (*Webhook
 			return nil, err
 		}
 		return actions, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -145,7 +143,7 @@ func (c *Client) GetWebhook(ctx context.Context, webhookID string) (*Webhook, er
 	q.Add("id", webhookID)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -158,8 +156,8 @@ func (c *Client) GetWebhook(ctx context.Context, webhookID string) (*Webhook, er
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -195,7 +193,7 @@ func (c *Client) CreateWebhook(ctx context.Context, createReq *CreateWebhookReq)
 		return nil, err
 	}
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -208,8 +206,8 @@ func (c *Client) CreateWebhook(ctx context.Context, createReq *CreateWebhookReq)
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}
@@ -248,7 +246,7 @@ func (c *Client) UpdateWebhook(ctx context.Context, actionID string, updateReq *
 	q.Add("id", actionID)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIError](c.opts.HTTPClient, req)
+	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -261,8 +259,8 @@ func (c *Client) UpdateWebhook(ctx context.Context, actionID string, updateReq *
 			return nil, err
 		}
 		return action, nil
-	case http.StatusForbidden:
-		var apiErr APIAuthError
+	case http.StatusForbidden, http.StatusBadRequest:
+		var apiErr APIGenError
 		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
 			return nil, errors.Join(err, jsonErr)
 		}

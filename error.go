@@ -14,8 +14,10 @@ var (
 	ErrUnprocessableEntity = errors.New("unprocessable entity")
 )
 
-// APIError is open AI API error.
-type APIError struct {
+// TODO: APIError and APIAuthError are a single error but it's a Union
+
+// APIParamError is returned when API params are invalid.
+type APIParamError struct {
 	Detail []struct {
 		Loc  []string `json:"loc"`
 		Msg  string   `json:"msg"`
@@ -24,7 +26,7 @@ type APIError struct {
 }
 
 // Error implements error interface.
-func (e APIError) Error() string {
+func (e APIParamError) Error() string {
 	b, err := json.Marshal(e)
 	if err != nil {
 		return "unknown error"
@@ -32,13 +34,13 @@ func (e APIError) Error() string {
 	return string(b)
 }
 
-// APIAuthError is returned when API auth fails.
-type APIAuthError struct {
+// APIGenError is returned when a generic API error is returned.
+type APIGenError struct {
 	Detail string `json:"detail"`
 }
 
 // Error implements error interface.
-func (e APIAuthError) Error() string {
+func (e APIGenError) Error() string {
 	b, err := json.Marshal(e)
 	if err != nil {
 		return "unknown error"

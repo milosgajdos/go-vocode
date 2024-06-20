@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 
@@ -97,35 +95,20 @@ func (c *Client) ListWebhooks(ctx context.Context, paging *PageParams) (*Webhook
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		actions := new(Webhooks)
-		if err := json.NewDecoder(resp.Body).Decode(actions); err != nil {
-			return nil, err
-		}
-		return actions, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	webhooks := new(Webhooks)
+	if err := json.NewDecoder(resp.Body).Decode(webhooks); err != nil {
+		return nil, err
 	}
+	return webhooks, nil
 }
 
-func (c *Client) GetWebhook(ctx context.Context, webhookID string) (*Webhook, error) {
+func (c *Client) GetWebhook(ctx context.Context, id string) (*Webhook, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/webhooks")
 	if err != nil {
 		return nil, err
@@ -140,35 +123,20 @@ func (c *Client) GetWebhook(ctx context.Context, webhookID string) (*Webhook, er
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", webhookID)
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(Webhook)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	webhook := new(Webhook)
+	if err := json.NewDecoder(resp.Body).Decode(webhook); err != nil {
+		return nil, err
 	}
+	return webhook, nil
 }
 
 func (c *Client) CreateWebhook(ctx context.Context, createReq *CreateWebhookReq) (*Webhook, error) {
@@ -193,35 +161,20 @@ func (c *Client) CreateWebhook(ctx context.Context, createReq *CreateWebhookReq)
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(Webhook)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	webhook := new(Webhook)
+	if err := json.NewDecoder(resp.Body).Decode(webhook); err != nil {
+		return nil, err
 	}
+	return webhook, nil
 }
 
-func (c *Client) UpdateWebhook(ctx context.Context, actionID string, updateReq *UpdateWebhookReq) (*Webhook, error) {
+func (c *Client) UpdateWebhook(ctx context.Context, id string, updateReq *UpdateWebhookReq) (*Webhook, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/webhooks/update")
 	if err != nil {
 		return nil, err
@@ -243,33 +196,18 @@ func (c *Client) UpdateWebhook(ctx context.Context, actionID string, updateReq *
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", actionID)
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(Webhook)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	webhook := new(Webhook)
+	if err := json.NewDecoder(resp.Body).Decode(webhook); err != nil {
+		return nil, err
 	}
+	return webhook, nil
 }

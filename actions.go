@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -243,35 +242,20 @@ func (c *Client) ListActions(ctx context.Context, paging *PageParams) (*Actions,
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		actions := new(Actions)
-		if err := json.NewDecoder(resp.Body).Decode(actions); err != nil {
-			return nil, err
-		}
-		return actions, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	actions := new(Actions)
+	if err := json.NewDecoder(resp.Body).Decode(actions); err != nil {
+		return nil, err
 	}
+	return actions, nil
 }
 
-func (c *Client) GetAction(ctx context.Context, actionID string) (*Action, error) {
+func (c *Client) GetAction(ctx context.Context, id string) (*Action, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/actions")
 	if err != nil {
 		return nil, err
@@ -286,35 +270,20 @@ func (c *Client) GetAction(ctx context.Context, actionID string) (*Action, error
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", actionID)
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(Action)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	action := new(Action)
+	if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
+		return nil, err
 	}
+	return action, nil
 }
 
 func (c *Client) CreateAction(ctx context.Context, createReq *CreateActionReq) (*Action, error) {
@@ -339,35 +308,20 @@ func (c *Client) CreateAction(ctx context.Context, createReq *CreateActionReq) (
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(Action)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	action := new(Action)
+	if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
+		return nil, err
 	}
+	return action, nil
 }
 
-func (c *Client) UpdateAction(ctx context.Context, actionID string, updateReq *UpdateActionReq) (*Action, error) {
+func (c *Client) UpdateAction(ctx context.Context, id string, updateReq *UpdateActionReq) (*Action, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/actions/update")
 	if err != nil {
 		return nil, err
@@ -389,33 +343,18 @@ func (c *Client) UpdateAction(ctx context.Context, actionID string, updateReq *U
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", actionID)
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(Action)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	action := new(Action)
+	if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
+		return nil, err
 	}
+	return action, nil
 }

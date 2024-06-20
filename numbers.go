@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 
@@ -68,35 +66,20 @@ func (c *Client) ListNumbers(ctx context.Context, paging *PageParams) (*Numbers,
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		numbers := new(Numbers)
-		if err := json.NewDecoder(resp.Body).Decode(numbers); err != nil {
-			return nil, err
-		}
-		return numbers, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	numbers := new(Numbers)
+	if err := json.NewDecoder(resp.Body).Decode(numbers); err != nil {
+		return nil, err
 	}
+	return numbers, nil
 }
 
-func (c *Client) GetNumber(ctx context.Context, number string) (*Number, error) {
+func (c *Client) GetNumber(ctx context.Context, phoneNr string) (*Number, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/numbers")
 	if err != nil {
 		return nil, err
@@ -111,35 +94,20 @@ func (c *Client) GetNumber(ctx context.Context, number string) (*Number, error) 
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("phone_number", number)
+	q.Add("phone_number", phoneNr)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		number := new(Number)
-		if err := json.NewDecoder(resp.Body).Decode(number); err != nil {
-			return nil, err
-		}
-		return number, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	number := new(Number)
+	if err := json.NewDecoder(resp.Body).Decode(number); err != nil {
+		return nil, err
 	}
+	return number, nil
 }
 
 func (c *Client) BuyNumber(ctx context.Context, buyReq *BuyNumberReq) (*Number, error) {
@@ -164,35 +132,20 @@ func (c *Client) BuyNumber(ctx context.Context, buyReq *BuyNumberReq) (*Number, 
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		nrResp := new(Number)
-		if err := json.NewDecoder(resp.Body).Decode(nrResp); err != nil {
-			return nil, err
-		}
-		return nrResp, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	number := new(Number)
+	if err := json.NewDecoder(resp.Body).Decode(number); err != nil {
+		return nil, err
 	}
+	return number, nil
 }
 
-func (c *Client) UpdateNumber(ctx context.Context, number string, updateReq *UpdateNumberReq) (*Number, error) {
+func (c *Client) UpdateNumber(ctx context.Context, phoneNr string, updateReq *UpdateNumberReq) (*Number, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/numbers/update")
 	if err != nil {
 		return nil, err
@@ -214,38 +167,23 @@ func (c *Client) UpdateNumber(ctx context.Context, number string, updateReq *Upd
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("phone_number", number)
+	q.Add("phone_number", phoneNr)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		nrResp := new(Number)
-		if err := json.NewDecoder(resp.Body).Decode(nrResp); err != nil {
-			return nil, err
-		}
-		return nrResp, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	nrResp := new(Number)
+	if err := json.NewDecoder(resp.Body).Decode(nrResp); err != nil {
+		return nil, err
 	}
+	return nrResp, nil
 }
 
-func (c *Client) CancelNumber(ctx context.Context, number string) (*Number, error) {
+func (c *Client) CancelNumber(ctx context.Context, phoneNr string) (*Number, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/numbers/cancel")
 	if err != nil {
 		return nil, err
@@ -260,33 +198,18 @@ func (c *Client) CancelNumber(ctx context.Context, number string) (*Number, erro
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("phone_number", number)
+	q.Add("phone_number", phoneNr)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		nrResp := new(Number)
-		if err := json.NewDecoder(resp.Body).Decode(nrResp); err != nil {
-			return nil, err
-		}
-		return nrResp, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	number := new(Number)
+	if err := json.NewDecoder(resp.Body).Decode(number); err != nil {
+		return nil, err
 	}
+	return number, nil
 }

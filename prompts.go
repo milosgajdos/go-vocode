@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 
@@ -101,35 +99,20 @@ func (c *Client) ListPrompts(ctx context.Context, paging *PageParams) (*Prompts,
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		actions := new(Prompts)
-		if err := json.NewDecoder(resp.Body).Decode(actions); err != nil {
-			return nil, err
-		}
-		return actions, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	prompts := new(Prompts)
+	if err := json.NewDecoder(resp.Body).Decode(prompts); err != nil {
+		return nil, err
 	}
+	return prompts, nil
 }
 
-func (c *Client) GetPrompt(ctx context.Context, promptID string) (*Prompt, error) {
+func (c *Client) GetPrompt(ctx context.Context, id string) (*Prompt, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/prompts")
 	if err != nil {
 		return nil, err
@@ -144,35 +127,20 @@ func (c *Client) GetPrompt(ctx context.Context, promptID string) (*Prompt, error
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", promptID)
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(Prompt)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	prompts := new(Prompt)
+	if err := json.NewDecoder(resp.Body).Decode(prompts); err != nil {
+		return nil, err
 	}
+	return prompts, nil
 }
 
 func (c *Client) CreatePrompt(ctx context.Context, createReq *CreatePromptReq) (*Prompt, error) {
@@ -197,35 +165,20 @@ func (c *Client) CreatePrompt(ctx context.Context, createReq *CreatePromptReq) (
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(Prompt)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	prompt := new(Prompt)
+	if err := json.NewDecoder(resp.Body).Decode(prompt); err != nil {
+		return nil, err
 	}
+	return prompt, nil
 }
 
-func (c *Client) UpdatePrompt(ctx context.Context, actionID string, updateReq *UpdatePromptReq) (*Prompt, error) {
+func (c *Client) UpdatePrompt(ctx context.Context, id string, updateReq *UpdatePromptReq) (*Prompt, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/prompts/update")
 	if err != nil {
 		return nil, err
@@ -247,33 +200,18 @@ func (c *Client) UpdatePrompt(ctx context.Context, actionID string, updateReq *U
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", actionID)
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(Prompt)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	prompt := new(Prompt)
+	if err := json.NewDecoder(resp.Body).Decode(prompt); err != nil {
+		return nil, err
 	}
+	return prompt, nil
 }

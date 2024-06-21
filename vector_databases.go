@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 
@@ -87,35 +85,20 @@ func (c *Client) ListVectorDBs(ctx context.Context, paging *PageParams) (*Vector
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		actions := new(VectorDBs)
-		if err := json.NewDecoder(resp.Body).Decode(actions); err != nil {
-			return nil, err
-		}
-		return actions, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	vectorDBs := new(VectorDBs)
+	if err := json.NewDecoder(resp.Body).Decode(vectorDBs); err != nil {
+		return nil, err
 	}
+	return vectorDBs, nil
 }
 
-func (c *Client) GetVectorDB(ctx context.Context, vectorDbID string) (*VectorDB, error) {
+func (c *Client) GetVectorDB(ctx context.Context, id string) (*VectorDB, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/vector_databases")
 	if err != nil {
 		return nil, err
@@ -130,35 +113,20 @@ func (c *Client) GetVectorDB(ctx context.Context, vectorDbID string) (*VectorDB,
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", vectorDbID)
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(VectorDB)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	vectorDB := new(VectorDB)
+	if err := json.NewDecoder(resp.Body).Decode(vectorDB); err != nil {
+		return nil, err
 	}
+	return vectorDB, nil
 }
 
 func (c *Client) CreateVectorDB(ctx context.Context, createReq *CreateVectorDBReq) (*VectorDB, error) {
@@ -183,35 +151,20 @@ func (c *Client) CreateVectorDB(ctx context.Context, createReq *CreateVectorDBRe
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(VectorDB)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	vectorDB := new(VectorDB)
+	if err := json.NewDecoder(resp.Body).Decode(vectorDB); err != nil {
+		return nil, err
 	}
+	return vectorDB, nil
 }
 
-func (c *Client) UpdateVectorDB(ctx context.Context, actionID string, updateReq *UpdateVectorDBReq) (*VectorDB, error) {
+func (c *Client) UpdateVectorDB(ctx context.Context, id string, updateReq *UpdateVectorDBReq) (*VectorDB, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/vector_databases/update")
 	if err != nil {
 		return nil, err
@@ -233,33 +186,18 @@ func (c *Client) UpdateVectorDB(ctx context.Context, actionID string, updateReq 
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", actionID)
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(VectorDB)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	vectorDB := new(VectorDB)
+	if err := json.NewDecoder(resp.Body).Decode(vectorDB); err != nil {
+		return nil, err
 	}
+	return vectorDB, nil
 }

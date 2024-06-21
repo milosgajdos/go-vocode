@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -121,35 +119,20 @@ func (c *Client) ListCalls(ctx context.Context, paging *PageParams) (*Calls, err
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		actions := new(Calls)
-		if err := json.NewDecoder(resp.Body).Decode(actions); err != nil {
-			return nil, err
-		}
-		return actions, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	calls := new(Calls)
+	if err := json.NewDecoder(resp.Body).Decode(calls); err != nil {
+		return nil, err
 	}
+	return calls, nil
 }
 
-func (c *Client) GetCall(ctx context.Context, callID string) (*Call, error) {
+func (c *Client) GetCall(ctx context.Context, id string) (*Call, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/calls")
 	if err != nil {
 		return nil, err
@@ -164,35 +147,20 @@ func (c *Client) GetCall(ctx context.Context, callID string) (*Call, error) {
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", callID)
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(Call)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	call := new(Call)
+	if err := json.NewDecoder(resp.Body).Decode(call); err != nil {
+		return nil, err
 	}
+	return call, nil
 }
 
 func (c *Client) CreateCall(ctx context.Context, createReq *CreateCallReq) (*Call, error) {
@@ -217,35 +185,20 @@ func (c *Client) CreateCall(ctx context.Context, createReq *CreateCallReq) (*Cal
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(Call)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	call := new(Call)
+	if err := json.NewDecoder(resp.Body).Decode(call); err != nil {
+		return nil, err
 	}
+	return call, nil
 }
 
-func (c *Client) EndCall(ctx context.Context, callID string) (*Call, error) {
+func (c *Client) EndCall(ctx context.Context, id string) (*Call, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/calls/end")
 	if err != nil {
 		return nil, err
@@ -268,38 +221,23 @@ func (c *Client) EndCall(ctx context.Context, callID string) (*Call, error) {
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", callID)
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(Call)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	call := new(Call)
+	if err := json.NewDecoder(resp.Body).Decode(call); err != nil {
+		return nil, err
 	}
+	return call, nil
 }
 
-func (c *Client) GetCallRecording(ctx context.Context, callID string, w io.Writer) error {
+func (c *Client) GetCallRecording(ctx context.Context, id string, w io.Writer) error {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/calls/recording")
 	if err != nil {
 		return err
@@ -314,32 +252,17 @@ func (c *Client) GetCallRecording(ctx context.Context, callID string, w io.Write
 		return err
 	}
 	q := req.URL.Query()
-	q.Add("id", callID)
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		if _, err := io.Copy(w, resp.Body); err != nil {
-			return err
-		}
-		return nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return errors.Join(err, jsonErr)
-		}
-		return apiErr
-	case http.StatusTooManyRequests:
-		return ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return ErrUnprocessableEntity
-	default:
-		return fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		return err
 	}
+	return nil
 }

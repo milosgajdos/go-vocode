@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -215,35 +214,20 @@ func (c *Client) ListVoices(ctx context.Context, paging *PageParams) (*Voices, e
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		actions := new(Voices)
-		if err := json.NewDecoder(resp.Body).Decode(actions); err != nil {
-			return nil, err
-		}
-		return actions, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	voices := new(Voices)
+	if err := json.NewDecoder(resp.Body).Decode(voices); err != nil {
+		return nil, err
 	}
+	return voices, nil
 }
 
-func (c *Client) GetVoice(ctx context.Context, voiceID string) (*Voice, error) {
+func (c *Client) GetVoice(ctx context.Context, id string) (*Voice, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/voices")
 	if err != nil {
 		return nil, err
@@ -258,35 +242,20 @@ func (c *Client) GetVoice(ctx context.Context, voiceID string) (*Voice, error) {
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", voiceID)
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(Voice)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	voice := new(Voice)
+	if err := json.NewDecoder(resp.Body).Decode(voice); err != nil {
+		return nil, err
 	}
+	return voice, nil
 }
 
 func (c *Client) CreateVoice(ctx context.Context, createReq *CreateVoiceReq) (*Voice, error) {
@@ -311,35 +280,20 @@ func (c *Client) CreateVoice(ctx context.Context, createReq *CreateVoiceReq) (*V
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(Voice)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	voice := new(Voice)
+	if err := json.NewDecoder(resp.Body).Decode(voice); err != nil {
+		return nil, err
 	}
+	return voice, nil
 }
 
-func (c *Client) UpdateVoice(ctx context.Context, actionID string, updateReq *UpdateVoiceReq) (*Voice, error) {
+func (c *Client) UpdateVoice(ctx context.Context, id string, updateReq *UpdateVoiceReq) (*Voice, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/voices/update")
 	if err != nil {
 		return nil, err
@@ -361,33 +315,18 @@ func (c *Client) UpdateVoice(ctx context.Context, actionID string, updateReq *Up
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", actionID)
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(Voice)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	voice := new(Voice)
+	if err := json.NewDecoder(resp.Body).Decode(voice); err != nil {
+		return nil, err
 	}
+	return voice, nil
 }

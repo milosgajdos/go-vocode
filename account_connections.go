@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -227,35 +226,20 @@ func (c *Client) ListAccountConns(ctx context.Context, paging *PageParams) (*Acc
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		actions := new(AccountConns)
-		if err := json.NewDecoder(resp.Body).Decode(actions); err != nil {
-			return nil, err
-		}
-		return actions, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	accountConns := new(AccountConns)
+	if err := json.NewDecoder(resp.Body).Decode(accountConns); err != nil {
+		return nil, err
 	}
+	return accountConns, nil
 }
 
-func (c *Client) GetAccountConn(ctx context.Context, acctConnID string) (*AccountConn, error) {
+func (c *Client) GetAccountConn(ctx context.Context, id string) (*AccountConn, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/account_connections")
 	if err != nil {
 		return nil, err
@@ -270,35 +254,20 @@ func (c *Client) GetAccountConn(ctx context.Context, acctConnID string) (*Accoun
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", acctConnID)
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(AccountConn)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	accountConn := new(AccountConn)
+	if err := json.NewDecoder(resp.Body).Decode(accountConn); err != nil {
+		return nil, err
 	}
+	return accountConn, nil
 }
 
 func (c *Client) CreateAccountConn(ctx context.Context, createReq *CreateAccountConnReq) (*AccountConn, error) {
@@ -323,35 +292,20 @@ func (c *Client) CreateAccountConn(ctx context.Context, createReq *CreateAccount
 		return nil, err
 	}
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(AccountConn)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	accountConn := new(AccountConn)
+	if err := json.NewDecoder(resp.Body).Decode(accountConn); err != nil {
+		return nil, err
 	}
+	return accountConn, nil
 }
 
-func (c *Client) UpdateAccountConn(ctx context.Context, actionID string, updateReq *UpdateAccountConnReq) (*AccountConn, error) {
+func (c *Client) UpdateAccountConn(ctx context.Context, id string, updateReq *UpdateAccountConnReq) (*AccountConn, error) {
 	u, err := url.Parse(c.opts.BaseURL + "/" + c.opts.Version + "/account_connections/update")
 	if err != nil {
 		return nil, err
@@ -373,33 +327,18 @@ func (c *Client) UpdateAccountConn(ctx context.Context, actionID string, updateR
 		return nil, err
 	}
 	q := req.URL.Query()
-	q.Add("id", actionID)
+	q.Add("id", id)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := request.Do[APIParamError](c.opts.HTTPClient, req)
+	resp, err := request.Do[*APIError](c.opts.HTTPClient, req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		action := new(AccountConn)
-		if err := json.NewDecoder(resp.Body).Decode(action); err != nil {
-			return nil, err
-		}
-		return action, nil
-	case http.StatusForbidden, http.StatusBadRequest:
-		var apiErr APIGenError
-		if jsonErr := json.NewDecoder(resp.Body).Decode(&apiErr); jsonErr != nil {
-			return nil, errors.Join(err, jsonErr)
-		}
-		return nil, apiErr
-	case http.StatusTooManyRequests:
-		return nil, ErrTooManyRequests
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessableEntity
-	default:
-		return nil, fmt.Errorf("%w: %d", ErrUnexpectedStatusCode, resp.StatusCode)
+	accountConn := new(AccountConn)
+	if err := json.NewDecoder(resp.Body).Decode(accountConn); err != nil {
+		return nil, err
 	}
+	return accountConn, nil
 }

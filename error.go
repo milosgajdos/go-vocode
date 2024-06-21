@@ -2,17 +2,7 @@ package vocode
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-)
-
-var (
-	// ErrTooManyRequests is returned when the cient hits rate limit.
-	ErrTooManyRequests = errors.New("too many requests")
-	// ErrUnexpectedStatusCode is returned when an unexpected status is returned from the API.
-	ErrUnexpectedStatusCode = errors.New("unexpected status code")
-	// ErrUnprocessableEntity is returned when no valid data is available
-	ErrUnprocessableEntity = errors.New("unprocessable entity")
 )
 
 type APIError struct {
@@ -57,9 +47,13 @@ func (e *APIError) UnmarshalJSON(data []byte) error {
 // APIParamError is returned when API params are invalid.
 type APIParamError struct {
 	Detail []struct {
-		Loc  []string `json:"loc"`
-		Msg  string   `json:"msg"`
-		Type string   `json:"type"`
+		Type  string        `json:"type"`
+		Loc   []interface{} `json:"loc"`
+		Msg   string        `json:"msg"`
+		Input string        `json:"input,omitempty"`
+		Ctx   *struct {
+			Error string `json:"error"`
+		} `json:"ctx,omitempty"`
 	} `json:"detail"`
 }
 

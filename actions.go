@@ -11,6 +11,12 @@ import (
 	"github.com/milosgajdos/go-vocode/request"
 )
 
+// ActionTrigger must be implemented by
+// all action triggers.
+type ActionTrigger interface {
+	TriggerType() TriggerType
+}
+
 type TriggerType string
 
 const (
@@ -21,7 +27,7 @@ const (
 type PhraseCondition string
 
 const (
-	PhraseTypeContains PhraseCondition = "phrase_condition_type_contains"
+	PhraseCondTypeContains PhraseCondition = "phrase_condition_type_contains"
 )
 
 type Phrase struct {
@@ -38,20 +44,28 @@ type PhraseTrigger struct {
 	Config *PhraseTriggerConfig `json:"config"`
 }
 
+func (p *PhraseTrigger) TriggerType() TriggerType {
+	return PhraseTriggerType
+}
+
 type FnCallTrigger struct {
 	Type   TriggerType    `json:"type"`
 	Config map[string]any `json:"config"`
 }
 
+func (f *FnCallTrigger) TriggerType() TriggerType {
+	return FnCallTriggerType
+}
+
 type ActionType string
 
 const (
-	TransferCallActionType    ActionType = "action_transfer_call"
-	EndConversationActionType ActionType = "action_end_conversation"
-	DtmfActionType            ActionType = "action_dtmf"
-	AddToConferenceActionType ActionType = "action_add_to_conference"
-	SetHoldActionType         ActionType = "action_set_hold"
-	ExternalActionType        ActionType = "action_external"
+	ActionDTMF            ActionType = "action_dtmf"
+	ActionSetHold         ActionType = "action_set_hold"
+	ActionExternal        ActionType = "action_external"
+	ActionTransferCall    ActionType = "action_transfer_call"
+	ActionEndConversation ActionType = "action_end_conversation"
+	ActionAddToConference ActionType = "action_add_to_conference"
 )
 
 type TransferCallActionConfig struct {
@@ -110,10 +124,10 @@ type ExternalAction struct {
 }
 
 type ActionBase struct {
-	ID      string      `json:"id"`
-	UserID  string      `json:"user_id"`
-	Type    ActionType  `json:"type"`
-	Trigger interface{} `json:"action_trigger"`
+	ID      string        `json:"id"`
+	UserID  string        `json:"user_id"`
+	Type    ActionType    `json:"type"`
+	Trigger ActionTrigger `json:"action_trigger"`
 }
 
 type Action struct {
@@ -127,9 +141,9 @@ type Actions struct {
 }
 
 type ActionReqBase struct {
-	Type    ActionType  `json:"type"`
-	Config  interface{} `json:"config"`
-	Trigger interface{} `json:"action_trigger"`
+	Type    ActionType    `json:"type"`
+	Trigger ActionTrigger `json:"action_trigger"`
+	Config  interface{}   `json:"config"`
 }
 
 type CreateActionReq struct {
@@ -181,37 +195,37 @@ func (a *Action) UnmarshalJSON(data []byte) error {
 	}
 
 	switch a.Type {
-	case TransferCallActionType:
+	case ActionTransferCall:
 		var config TransferCallActionConfig
 		if err := json.Unmarshal(aux.RawConfig, &config); err != nil {
 			return err
 		}
 		a.Config = &config
-	case EndConversationActionType:
+	case ActionEndConversation:
 		var config map[string]interface{}
 		if err := json.Unmarshal(aux.RawConfig, &config); err != nil {
 			return err
 		}
 		a.Config = config
-	case DtmfActionType:
+	case ActionDTMF:
 		var config map[string]interface{}
 		if err := json.Unmarshal(aux.RawConfig, &config); err != nil {
 			return err
 		}
 		a.Config = config
-	case AddToConferenceActionType:
+	case ActionAddToConference:
 		var config AddToConfConfig
 		if err := json.Unmarshal(aux.RawConfig, &config); err != nil {
 			return err
 		}
 		a.Config = &config
-	case SetHoldActionType:
+	case ActionSetHold:
 		var config map[string]interface{}
 		if err := json.Unmarshal(aux.RawConfig, &config); err != nil {
 			return err
 		}
 		a.Config = config
-	case ExternalActionType:
+	case ActionExternal:
 		var config ExternalActionConfig
 		if err := json.Unmarshal(aux.RawConfig, &config); err != nil {
 			return err

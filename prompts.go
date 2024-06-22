@@ -13,7 +13,7 @@ import (
 type FieldType string
 
 const (
-	FieldTypeEmail FieldType = "field_type_email"
+	EmailFieldType FieldType = "field_type_email"
 )
 
 type Field struct {
@@ -45,14 +45,12 @@ type Prompt struct {
 }
 
 func (p *Prompt) UnmarshalJSON(data []byte) error {
-	// Check if the data is a plain string ID
 	var id string
 	if err := json.Unmarshal(data, &id); err == nil {
 		p.ID = id
 		return nil
 	}
 
-	// Otherwise, unmarshal as a full TelAccountConn object
 	type Alias Prompt
 	aux := &struct {
 		*Alias

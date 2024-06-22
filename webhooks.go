@@ -13,21 +13,21 @@ import (
 type Event string
 
 const (
-	EventMessage          Event = "event_message"
-	EventAction           Event = "event_action"
-	EventCallConnected    Event = "event_phone_call_connected"
-	EventCallEnded        Event = "event_phone_call_ended"
-	EventCallDidntConnect Event = "event_phone_call_did_not_connect"
-	EventTranscript       Event = "event_transcript"
-	EventRecording        Event = "event_recording"
-	EventHumanDetection   Event = "event_human_detection"
+	MessageEvent          Event = "event_message"
+	ActionEvent           Event = "event_action"
+	CallConnectedEvent    Event = "event_phone_call_connected"
+	CallEndedEvent        Event = "event_phone_call_ended"
+	CallDidntConnectEvent Event = "event_phone_call_did_not_connect"
+	TranscriptEvent       Event = "event_transcript"
+	RecordingEvent        Event = "event_recording"
+	HumanDetectionEvent   Event = "event_human_detection"
 )
 
 type WebhookMethod string
 
 const (
-	Get  WebhookMethod = "GET"
-	Post WebhookMethod = "POST"
+	GetWebhook  WebhookMethod = "GET"
+	PostWebhook WebhookMethod = "POST"
 )
 
 type Webhooks struct {

@@ -14,11 +14,11 @@ func main() {
 	whCreateReq := &vocode.CreateWebhookReq{
 		WebhookReqBase: vocode.WebhookReqBase{
 			Subs: []vocode.Event{
-				vocode.EventMessage,
-				vocode.EventAction,
+				vocode.MessageEvent,
+				vocode.ActionEvent,
 			},
 			URL:    "https://foobar.com",
-			Method: vocode.Post,
+			Method: vocode.PostWebhook,
 		},
 	}
 

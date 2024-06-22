@@ -2,18 +2,33 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 
 	"github.com/milosgajdos/go-vocode"
 )
 
+var (
+	phoneNr string
+)
+
+func init() {
+	flag.StringVar(&phoneNr, "phone-nr", "", "phone number")
+}
+
 func main() {
+	flag.Parse()
+
+	if phoneNr == "" {
+		log.Fatal("must specify phone number")
+	}
+
 	client := vocode.NewClient()
 	ctx := context.Background()
 
 	extActionReq := &vocode.CreateActionReq{
 		ActionReqBase: vocode.ActionReqBase{
-			Type: vocode.ExternalActionType,
+			Type: vocode.ActionExternal,
 			Config: vocode.ExternalActionConfig{
 				ProcessingMode: vocode.MutedProcessing,
 				Name:           "Baseconfig",
@@ -21,7 +36,7 @@ func main() {
 				URL:            "https://foobar.com",
 				InputSchema:    map[string]any{},
 			},
-			Trigger: vocode.FnCallTrigger{
+			Trigger: &vocode.FnCallTrigger{
 				Type:   vocode.FnCallTriggerType,
 				Config: map[string]any{},
 			},
@@ -36,11 +51,11 @@ func main() {
 
 	trCallActionReq := &vocode.CreateActionReq{
 		ActionReqBase: vocode.ActionReqBase{
-			Type: vocode.TransferCallActionType,
+			Type: vocode.ActionTransferCall,
 			Config: vocode.TransferCallActionConfig{
-				PhoneNr: "+19517449404",
+				PhoneNr: phoneNr,
 			},
-			Trigger: vocode.FnCallTrigger{
+			Trigger: &vocode.FnCallTrigger{
 				Type:   vocode.FnCallTriggerType,
 				Config: map[string]any{},
 			},

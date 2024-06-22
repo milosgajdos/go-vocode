@@ -14,8 +14,8 @@ import (
 type AccountConnType string
 
 const (
-	OpenAIConnType AccountConnType = "account_connection_openai"
-	TwilioConnType AccountConnType = "account_connection_twilio"
+	AccountConnOpenAI AccountConnType = "account_connection_openai"
+	AccountConnTwilio AccountConnType = "account_connection_twilio"
 )
 
 type OpenAICreds struct {
@@ -47,14 +47,12 @@ type TelAccountConn struct {
 }
 
 func (ta *TelAccountConn) UnmarshalJSON(data []byte) error {
-	// Check if the data is a plain string ID
 	var id string
 	if err := json.Unmarshal(data, &id); err == nil {
 		ta.ID = id
 		return nil
 	}
 
-	// Otherwise, unmarshal as a full TelAccountConn object
 	type Alias TelAccountConn
 	aux := &struct {
 		*Alias
@@ -144,13 +142,13 @@ func (a *AccountConn) UnmarshalJSON(data []byte) error {
 	a.AccountConnsBase = base
 
 	switch a.Type {
-	case OpenAIConnType:
+	case AccountConnOpenAI:
 		var openaiAccount OpenAIAccount
 		if err := json.Unmarshal(data, &openaiAccount); err != nil {
 			return err
 		}
 		a.OpenAIAccount = &openaiAccount
-	case TwilioConnType:
+	case AccountConnTwilio:
 		var twillioAccount TwilioAccount
 		if err := json.Unmarshal(data, &twillioAccount); err != nil {
 			return err
@@ -171,7 +169,7 @@ func (a AccountConnReqBase) MarshalJSON() ([]byte, error) {
 	type Alias AccountConnReqBase
 
 	switch a.Type {
-	case OpenAIConnType:
+	case AccountConnOpenAI:
 		return json.Marshal(&struct {
 			*Alias
 			*OpenAIAccount
@@ -179,7 +177,7 @@ func (a AccountConnReqBase) MarshalJSON() ([]byte, error) {
 			Alias:         (*Alias)(&a),
 			OpenAIAccount: a.OpenAIAccount,
 		})
-	case TwilioConnType:
+	case AccountConnTwilio:
 		return json.Marshal(&struct {
 			*Alias
 			*TwilioAccount

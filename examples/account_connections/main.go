@@ -33,7 +33,7 @@ func main() {
 
 	oaiConnReq := &vocode.CreateAccountConnReq{
 		AccountConnReqBase: vocode.AccountConnReqBase{
-			Type: vocode.OpenAIConnType,
+			Type: vocode.AccountConnOpenAI,
 			OpenAIAccount: &vocode.OpenAIAccount{
 				Creds: &vocode.OpenAICreds{
 					APIKey: oaiAPIKey,
@@ -50,7 +50,7 @@ func main() {
 
 	twillioConnReq := &vocode.CreateAccountConnReq{
 		AccountConnReqBase: vocode.AccountConnReqBase{
-			Type: vocode.TwilioConnType,
+			Type: vocode.AccountConnTwilio,
 			TwilioAccount: &vocode.TwilioAccount{
 				Creds: &vocode.TwilioCreds{
 					AccountID: twillioAccountID,

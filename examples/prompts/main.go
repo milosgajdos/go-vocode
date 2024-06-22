@@ -16,7 +16,7 @@ func main() {
 			Content: "You are a voice assistant that answers questions about coding",
 			Fields: []vocode.Field{
 				{
-					Type:  vocode.FieldTypeEmail,
+					Type:  vocode.EmailFieldType,
 					Label: "Foo",
 					Name:  "FooPrompt",
 					Desc:  "Example prompt",

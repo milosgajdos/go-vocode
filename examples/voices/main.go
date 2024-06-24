@@ -12,7 +12,7 @@ func main() {
 	ctx := context.Background()
 
 	voiceAzureReq := &vocode.CreateVoiceReq{
-		VoiceReqBase: vocode.VoiceReqBase{
+		VoiceReq: vocode.VoiceReq{
 			Type: vocode.AzureVoiceType,
 			AzureVoice: &vocode.AzureVoice{
 				Name:  "FoobarAzure",
@@ -29,7 +29,7 @@ func main() {
 	log.Printf("created voice: %v", res)
 
 	voiceRimeReq := &vocode.CreateVoiceReq{
-		VoiceReqBase: vocode.VoiceReqBase{
+		VoiceReq: vocode.VoiceReq{
 			Type: vocode.RimeVoiceType,
 			RimeVoice: &vocode.RimeVoice{
 				Speaker:    "Frank",

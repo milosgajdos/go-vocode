@@ -52,7 +52,7 @@ func (v *VectorDB) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-type VectorDBReqBase struct {
+type VectorDBReq struct {
 	Type   VectorDBType `json:"type"`
 	Index  string       `json:"index"`
 	APIKey string       `json:"api_key"`
@@ -60,11 +60,11 @@ type VectorDBReqBase struct {
 }
 
 type CreateVectorDBReq struct {
-	VectorDBReqBase
+	VectorDBReq
 }
 
 type UpdateVectorDBReq struct {
-	VectorDBReqBase
+	VectorDBReq
 }
 
 func (c *Client) ListVectorDBs(ctx context.Context, paging *PageParams) (*VectorDBs, error) {

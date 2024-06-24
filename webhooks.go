@@ -63,18 +63,18 @@ func (w *Webhook) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-type WebhookReqBase struct {
+type WebhookReq struct {
 	Subs   []Event       `json:"subscriptions"`
 	URL    string        `json:"url"`
 	Method WebhookMethod `json:"method"`
 }
 
 type CreateWebhookReq struct {
-	WebhookReqBase
+	WebhookReq
 }
 
 type UpdateWebhookReq struct {
-	WebhookReqBase
+	WebhookReq
 }
 
 func (c *Client) ListWebhooks(ctx context.Context, paging *PageParams) (*Webhooks, error) {

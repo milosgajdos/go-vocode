@@ -32,7 +32,7 @@ func main() {
 	}
 
 	oaiConnReq := &vocode.CreateAccountConnReq{
-		AccountConnReqBase: vocode.AccountConnReqBase{
+		AccountConnReq: vocode.AccountConnReq{
 			Type: vocode.AccountConnOpenAI,
 			OpenAIAccount: &vocode.OpenAIAccount{
 				Creds: &vocode.OpenAICreds{
@@ -49,7 +49,7 @@ func main() {
 	log.Printf("created openai account connection: %v", res)
 
 	twillioConnReq := &vocode.CreateAccountConnReq{
-		AccountConnReqBase: vocode.AccountConnReqBase{
+		AccountConnReq: vocode.AccountConnReq{
 			Type: vocode.AccountConnTwilio,
 			TwilioAccount: &vocode.TwilioAccount{
 				Creds: &vocode.TwilioCreds{

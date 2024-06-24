@@ -27,7 +27,7 @@ func main() {
 	ctx := context.Background()
 
 	extActionReq := &vocode.CreateActionReq{
-		ActionReqBase: vocode.ActionReqBase{
+		ActionReq: vocode.ActionReq{
 			Type: vocode.ActionExternal,
 			Config: vocode.ExternalActionConfig{
 				ProcessingMode: vocode.MutedProcessing,
@@ -50,7 +50,7 @@ func main() {
 	log.Printf("%#v", res)
 
 	trCallActionReq := &vocode.CreateActionReq{
-		ActionReqBase: vocode.ActionReqBase{
+		ActionReq: vocode.ActionReq{
 			Type: vocode.ActionTransferCall,
 			Config: vocode.TransferCallActionConfig{
 				PhoneNr: phoneNr,

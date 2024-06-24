@@ -95,7 +95,7 @@ func main() {
 	ax := strings.Split(actions, ",")
 
 	createAgentReq := &vocode.CreateAgentReq{
-		AgentReqbase: vocode.AgentReqbase{
+		AgentReq: vocode.AgentReq{
 			Name:                     "My Agent",
 			Prompt:                   prompt,
 			Voice:                    voice,

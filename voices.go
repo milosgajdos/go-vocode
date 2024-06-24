@@ -131,7 +131,7 @@ func (v *Voice) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-type VoiceReqBase struct {
+type VoiceReq struct {
 	Type            VoiceType        `json:"type"`
 	AzureVoice      *AzureVoice      `json:"-"`
 	RimeVoice       *RimeVoice       `json:"-"`
@@ -139,8 +139,8 @@ type VoiceReqBase struct {
 	PlayHtVoice     *PlayHtVoice     `json:"-"`
 }
 
-func (v VoiceReqBase) MarshalJSON() ([]byte, error) {
-	type Alias VoiceReqBase
+func (v VoiceReq) MarshalJSON() ([]byte, error) {
+	type Alias VoiceReq
 
 	switch v.Type {
 	case AzureVoiceType:
@@ -181,19 +181,19 @@ func (v VoiceReqBase) MarshalJSON() ([]byte, error) {
 }
 
 type CreateVoiceReq struct {
-	VoiceReqBase
+	VoiceReq
 }
 
 func (v CreateVoiceReq) MarshalJSON() ([]byte, error) {
-	return v.VoiceReqBase.MarshalJSON()
+	return v.VoiceReq.MarshalJSON()
 }
 
 type UpdateVoiceReq struct {
-	VoiceReqBase
+	VoiceReq
 }
 
 func (v UpdateVoiceReq) MarshalJSON() ([]byte, error) {
-	return v.VoiceReqBase.MarshalJSON()
+	return v.VoiceReq.MarshalJSON()
 }
 
 func (c *Client) ListVoices(ctx context.Context, paging *PageParams) (*Voices, error) {

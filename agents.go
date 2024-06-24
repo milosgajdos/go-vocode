@@ -102,7 +102,7 @@ func (a *Agent) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-type AgentReqbase struct {
+type AgentReq struct {
 	Name                     string             `json:"name"`
 	Prompt                   string             `json:"prompt"`
 	Language                 Language           `json:"language"`
@@ -126,19 +126,19 @@ type AgentReqbase struct {
 }
 
 type CreateAgentReq struct {
-	AgentReqbase
+	AgentReq
 }
 
 func (a CreateAgentReq) MarshalJSON() ([]byte, error) {
-	return json.Marshal(a.AgentReqbase)
+	return json.Marshal(a.AgentReq)
 }
 
 type UpdateAgentReq struct {
-	AgentReqbase
+	AgentReq
 }
 
 func (a UpdateAgentReq) MarshalJSON() ([]byte, error) {
-	return json.Marshal(a.AgentReqbase)
+	return json.Marshal(a.AgentReq)
 }
 
 func (c *Client) ListAgents(ctx context.Context, paging *PageParams) (*Agents, error) {

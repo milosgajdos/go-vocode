@@ -159,14 +159,14 @@ func (a *AccountConn) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-type AccountConnReqBase struct {
+type AccountConnReq struct {
 	Type          AccountConnType `json:"type"`
 	TwilioAccount *TwilioAccount  `json:"-"`
 	OpenAIAccount *OpenAIAccount  `json:"-"`
 }
 
-func (a AccountConnReqBase) MarshalJSON() ([]byte, error) {
-	type Alias AccountConnReqBase
+func (a AccountConnReq) MarshalJSON() ([]byte, error) {
+	type Alias AccountConnReq
 
 	switch a.Type {
 	case AccountConnOpenAI:
@@ -191,19 +191,19 @@ func (a AccountConnReqBase) MarshalJSON() ([]byte, error) {
 }
 
 type CreateAccountConnReq struct {
-	AccountConnReqBase
+	AccountConnReq
 }
 
 func (a CreateAccountConnReq) MarshalJSON() ([]byte, error) {
-	return a.AccountConnReqBase.MarshalJSON()
+	return a.AccountConnReq.MarshalJSON()
 }
 
 type UpdateAccountConnReq struct {
-	AccountConnReqBase
+	AccountConnReq
 }
 
 func (a UpdateAccountConnReq) MarshalJSON() ([]byte, error) {
-	return a.AccountConnReqBase.MarshalJSON()
+	return a.AccountConnReq.MarshalJSON()
 }
 
 func (c *Client) ListAccountConns(ctx context.Context, paging *PageParams) (*AccountConns, error) {

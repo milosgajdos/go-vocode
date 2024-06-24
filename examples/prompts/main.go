@@ -12,7 +12,7 @@ func main() {
 	ctx := context.Background()
 
 	createPromptReq := &vocode.CreatePromptReq{
-		PromptReqBase: vocode.PromptReqBase{
+		PromptReq: vocode.PromptReq{
 			Content: "You are a voice assistant that answers questions about coding",
 			Fields: []vocode.Field{
 				{

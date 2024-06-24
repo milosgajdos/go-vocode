@@ -29,7 +29,7 @@ func main() {
 	}
 
 	whCreateReq := &vocode.CreateVectorDBReq{
-		VectorDBReqBase: vocode.VectorDBReqBase{
+		VectorDBReq: vocode.VectorDBReq{
 			Type:   vocode.PineConeVectorDB,
 			Index:  pcIndex,
 			APIKey: pcAPIKey,

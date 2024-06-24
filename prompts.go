@@ -64,7 +64,7 @@ func (p *Prompt) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-type PromptReqBase struct {
+type PromptReq struct {
 	Content     string  `json:"content"`
 	Fields      []Field `json:"collect_fields"`
 	CtxEndpoint string  `json:"context_endpoint,omitempty"`
@@ -72,11 +72,11 @@ type PromptReqBase struct {
 }
 
 type CreatePromptReq struct {
-	PromptReqBase
+	PromptReq
 }
 
 type UpdatePromptReq struct {
-	PromptReqBase
+	PromptReq
 }
 
 func (c *Client) ListPrompts(ctx context.Context, paging *PageParams) (*Prompts, error) {

@@ -12,7 +12,7 @@ func main() {
 	ctx := context.Background()
 
 	whCreateReq := &vocode.CreateWebhookReq{
-		WebhookReqBase: vocode.WebhookReqBase{
+		WebhookReq: vocode.WebhookReq{
 			Subs: []vocode.Event{
 				vocode.MessageEvent,
 				vocode.ActionEvent,
